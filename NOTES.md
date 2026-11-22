@@ -1,0 +1,355 @@
+# DinoLight v0.1 (started 2026-11-22), about 212 x 74 mm
+
+Mosasaurus-shaped light-up PCB, a toy for a young child.
+20 side-emitting addressable LEDs along the spine, a two-LED eye, ESP32-S3 module running CircuitPython,
+accelerometer, 12 capacitive touch zones on the bare front face, LiPo, USB-C.
+JLCPCB Standard assembly, parts on one side. 2 layers.
+
+Decisions marked "owner" are the owner's; those marked "mine" were made by the AI assistant doing the
+design work and are open to change.
+
+## State
+
+- 2026-11-22: architecture agreed by the owner. Parts chosen and checked at JLCPCB. Draft outline drawn,
+  NOT approved (the owner will change it later).
+- 2026-11-22: quote-only DRAFT board uploaded by the owner to JLCPCB (`draft/`). Result: EUR 143 before tax
+  and shipping for 5 assembled; Standard assembly only (expected); every BOM line matched; the
+  accelerometer was accepted; the reverse-mount eye LED came back with quantity 0 ("hard to place").
+  The preview shows USB, switch, battery connector and module facing as intended. The draft predates
+  the schematic and must not be ordered.
+- 2026-11-22: schematic drawn from `tools/design_spec.py` by `tools/schematic.py`: 3 pages, 140 parts,
+  82 nets. KiCad's netlist matches the declared nets with 0 differences. ERC: 1 warning, accepted
+  (U5 SA0 tied to 3V3; KiCad calls the pin bidirectional). Pages rendered and looked at.
+- Review 1 (netlist against datasheets) done 2026-11-22: no blocker, four should-fix, all acted on.
+  Re-review of those changes done 2026-11-22: it found one regression and one should-fix, both fixed as
+  the reviewer specified (D23, R32, C32). Those last three edits were checked by my own arithmetic and
+  the netlist comparison, not by a third independent pass. See Reviews.
+- 2026-11-22: DRAFT of the real board built from the schematic's netlist by `tools/build_board.py`
+  (`dinolight.kicad_pcb`): draft outline, 140 footprints placed and linked to their symbols, every pad
+  on its net, touch electrodes on the back copper on their nets, eye hole. NO TRACKS. Placement is a
+  first pass on an outline the owner will replace; it has not had mechanical sign-off. See "Placement draft".
+- Git repository set up 2026-11-22 (branch `main`, local only, no remote).
+- Tools: kicad-cli 10.0.8 runs with `KICAD_DOCUMENTS_HOME=<project>/kicad-user` (checked 2026-11-22).
+- Not done: the owner has not read the schematic; routing; mechanical sign-off; JLCPCB's edge rails and tab
+  positions; silkscreen; mounting-hole and antenna keepouts.
+
+## Deadline
+
+- The finished toy is needed in the second half of December 2026, with a slow outbound shipping leg
+  after assembly and testing.
+- Target order date Fri 27 Nov; latest sensible Mon 30 Nov. Standard assembly is 4 days or more after
+  2 to 3 days of fabrication (JLCPCB lead-time article).
+- No second spin. Module not bare chip, test points, hard switch as well as soft sleep.
+
+## Decisions
+
+| Decision | Why | Whose |
+|---|---|---|
+| Mosasaurus, head left on the show face, about 212 x 74 mm | The recipient's favourite; no thin legs, so robust | owner |
+| Bare PCB front is the show face: artwork and touch pads, no cover | "Clearly a made thing" | owner |
+| CircuitPython | Easy to change later: edit `code.py` on the USB drive | owner |
+| Battery bought locally at the destination, not shipped with the toy | Lithium cells are restricted in the post | owner |
+| ESP32-S3-MINI-1-N8, touch read by the module itself | 14 touch channels on GPIO1 to 14 (datasheet v1.7 table 3-1), so no touch controller chip | mine, open |
+| 470R in series with each touch electrode | Static and noise protection; electrodes are under solder mask only | mine, open |
+| Eye = hole in the board with two side LEDs (D21, D22) on its rim firing inward into a printed plug | JLCPCB returned the reverse-mount SK6812MINI-E as hard to place (quantity 0). Same part as the spine, one fewer extended part type, bigger eye | mine, open |
+| LEDs powered from the battery only, never from USB 5 V | LED input high threshold is 0.65 x VDD (datasheet): 2.73 V at 4.2 V, fine for 3.3 V logic; 3.25 V at 5 V, not fine. Avoids a level shifter | mine, open |
+| LED rail behind a P-FET switch (Q2, driven by Q3), off by default | 0.6 mA per LED when dark (datasheet), 22 LEDs = 13 mA standing drain | mine, open |
+| Slide switch works the regulator's enable pin, not the battery current | The switch is rated 50 mA. Off state is regulator shutdown (0.1 uA typ) with the LED rail off | mine, open |
+| USB plugged in also enables the regulator (D23, then R4 / R5, 200k each) | Plugging in wakes it to show charging and makes it programmable whatever the switch says. 200k, not 1M: with 1M a 10 M leak across the switch (its own after-humidity spec) would reach the enable threshold and the toy would not turn off. Costs about 21 uA while switched on. D23 (1N4148W) stops the battery feeding back onto VBUS through R4, which otherwise leaves VBUS_DET at an undefined level and may stop a USB-C charger from starting | mine, after reviews |
+| Supervisor U6 (TLV803S, 2.93 V, open drain) on the module's EN through R32 1k; EN pull-up R16 100k, C32 100 nF | Below 2.79 V the charger only trickles 21 mA, less than an awake module draws, so a deeply flat cell would never recover with USB always waking the module. U6 keeps the module off until the rail is up, and supplies the 200 ms start-up delay. R32 keeps U6's output within its 5 mA limit when it discharges C32. Adds about 12 uA | mine, after reviews |
+| Fuse F1 in series with the battery connector pin, ahead of the polarity jumpers | A half-done or blobbed jumper change would otherwise short the cell with no fuse in the path | mine, after review 1 |
+| C10 from gate to drain of Q2 (was gate to source) | Sets the LED rail's rise to about 1.5 ms and the inrush to about 60 mA, instead of an estimated 2 A spike that could dip the battery and reset the module when the LEDs come on | mine, after review 1 |
+| CHG_STAT and VBUS_DET dividers 100k over 200k (2/3) | Half of a sagging 4.4 V USB supply is 2.2 V, under the module's guaranteed high level of 2.475 V | mine, after review 1 |
+| C3, C4 at the regulator are 10 uF 0805 (were 1 uF 0402) | A 1 uF 0402 loses much of its value with 3 to 4 V across it; the regulator wants 1 uF effective | mine, after review 1 |
+| No USB power path: board runs from the battery, charger tops it up | Fewer parts; needs a battery fitted to run | mine, open |
+| RT9080-33 regulator | 2 uA quiescent, enable pin, 600 mA | mine, open |
+| MCP73831 charger at 213 mA (4.7k) | Gentle on a 500 mAh cell | mine, open |
+| Charger STAT through a 100k / 100k divider | STAT is three-state and drives to VBUS (5 V) when charge completes; the module's pins are 3.3 V | mine |
+| Polarity jumpers SJ1, SJ2 on the battery connector | JST-PH LiPos come in both polarities and the cell is bought separately, unseen. Default: J2 pin 1 = + (SparkFun's stated convention; whether that is the footprint's pad 1 is unverified) | mine, open |
+| Reverse-polarity P-FET Q1 and a 1.1 A polyfuse F1 at the battery | A wrong-way cell then does nothing rather than damage; a child's toy | mine, open |
+| Eye LEDs on their own data pin (IO48), spine on IO47 | IO48 is the status-LED pin of the DevKitM-1 board, whose stock CircuitPython build should run on this module (from memory, unverified) | mine, open |
+| Qwiic connector on the I2C bus | Add-on projects later; part used before | mine, open |
+| 2 layers | An inner ground plane 0.2 mm behind the touch electrodes would swamp them | mine, open |
+
+## Parts
+
+Stock read from each JLCPCB part page on 2026-11-22. Datasheets are in `datasheets/<C-number>.pdf`.
+The owner's upload on 2026-11-22 matched every line by C-number.
+
+| Part | C-number | Stock | Class | Lib | Price | KiCad footprint | Unverified |
+|---|---|---|---|---|---|---|---|
+| OPSCO SK6812SIDE-A side LED x22 | C5378721 | 137,956 | Economic and Standard | ext | $0.11 | DinoLight:LED_SK6812SIDE-A_4.0x1.6mm (own; matches JLCPCB's to 0.02 mm) | page says MSL 3, linked datasheet is the -012 variant and says MSL 5a |
+| ESP32-S3-MINI-1-N8 | C2913206 | 14,793 | Standard Only, X-ray | ext | $4.73 | RF_Module:ESP32-S2-MINI-1 (73 of 73 pads match JLCPCB's, 0.03 mm) | antenna keepout |
+| LIS2DH12TR accelerometer | C110926 | 9,994 | Standard Only | ext | $0.89 | LGA-12_2x2mm_P0.5mm | JLCPCB's footprint service has none for it; pin 1 in the preview |
+| TYPE-C-31-M-12 USB-C, 16 pin | C165948 | 482,527 | Economic and Standard | ext | $0.19 | USB_C_Receptacle_HRO_TYPE-C-31-M-12 (0.12 mm) | board-edge line |
+| MCP73831T-2ACI/OT charger | C424093 | 4,058 | Economic and Standard | ext | $0.79 | SOT-23-5 | |
+| RT9080-33GJ5 regulator | C841192 | 25,016 | Economic and Standard | ext | $0.12 | TSOT-23-5 | |
+| AO3401A P-FET x2 | C15127 | 1,198,551 | Economic and Standard | basic | $0.08 | SOT-23 (0.28 mm) | pinout G1 S2 D3 from the KiCad symbol, not yet from the datasheet |
+| 2N7002 N-FET | C8545 | 6,087,828 | Economic and Standard | basic | $0.02 | SOT-23 | same |
+| MSK12C02 slide switch | C431540 | 178,549 | Economic and Standard | ext | $0.05 | SW_SPDT_Shouhan_MSK12C02 (0.20 mm) | |
+| JST S2B-PH-SM4-TB battery connector | C295747 | 14,733 | Economic and Standard | ext | $0.20 | JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal | which pad is +, against the cell bought |
+| USBLC6-2SC6 ESD | C7519 | 41,992 | Economic and Standard | ext | $0.16 | SOT-23-6 | |
+| TS-1187A-B-A-B tact switch x2 | C318884 | 712,048 | Economic and Standard | basic | $0.02 | SW_Push_1P1T_XKB_TS-1187A | |
+| JST SM04B-SRSS-TB (Qwiic) | C160404 | 4,603 | Economic and Standard | ext | $0.21 | JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal | used before |
+| Polyfuse 1.1 A 1812 | C21000 | 38,340 | Economic and Standard | ext | $0.15 | Fuse_1812 (0.28 mm) | used before |
+| TLV803SDBZR supervisor | C132016 | 31,902 | Economic and Standard | ext | $0.19 | SOT-23 | footprint vs JLCPCB not yet run |
+| 1N4148W diode | C81598 | 4,479,389 | Economic and Standard | basic | $0.01 | D_SOD-123 | which pad is the cathode, KiCad against JLCPCB (polarised: check in the preview) |
+| 0402 R: 330R, 470R, 1k, 4.7k, 5.1k, 10k, 100k, 200k, 1M | C25104, C25117, C11702, C25900, C25905, C25744, C25741, C25764, C26083 | millions | Economic and Standard | basic | | 0402 | 150k, 470k, 68k in 0402 are extended parts: avoided |
+| 100 nF 0402, 10 uF 0805 | C1525, C15850 | millions | Economic and Standard | basic | | 0402 / 0805 | |
+
+Dropped: SK6812MINI-E C5149201 (reverse mount; JLCPCB would not place it). Avoid: SK6812SIDE-A-RVS
+C2890037 (Standard Only, MSL 5a); LIS3DHTR C15134 (pre-order).
+
+Cost: the owner's quote for the draft on 2026-11-22: EUR 143 before tax and shipping, 5 assembled. Parts were
+$51.78 of that (ESP32 $23.67, side LEDs $9.40, accelerometer $4.44, charger $3.95). The rest is fees.
+12 extended part types now (the eye LED went, the supervisor came; the diode and new resistor values
+are basic parts). The breakdown between board, setup
+and extended-part fees is not known.
+
+**TLV803SDBZR (C132016).** TI datasheet: DBZ package 1 GND, 2 RESET (open drain, active low), 3 VDD.
+Threshold 2.93 V, hysteresis 40 mV typ, 200 ms delay, 9 uA typ. Drawn with KiCad's TPS3839DBZ symbol
+(same pin numbers).
+
+**AO3401A (C15127), 2N7002 (C8545).** Both 1 gate, 2 source, 3 drain (AOS datasheet read by the reviewer;
+Changjing datasheet text read by me). 2N7002 threshold 1 to 2.5 V.
+
+### Ground truth, per part
+
+**SK6812SIDE-A (C5378721).** Datasheet SK6812SIDE-A-012 rev B/2. Body 4.0 long, 1.6 deep, 2.0 tall; it
+stands on the board and fires sideways out of the 4.0 x 2.0 face. Pads in a row: 1 DIN, 2 VDD, 3 DOUT,
+4 GND. Looking down on the board with the light firing towards you (down the page), the pads read
+DIN, VDD, DOUT, GND from left to right, and sit behind the emitting face. JLCPCB's footprint
+(LED-SMD_4P-L4.0-W1.6-L) agrees: pads at x = -1.80, -0.45, +0.575, +1.80, body from 0.24 behind the pad
+centres to 1.36 in front, window drawn on the front. So with the LEDs firing up out of the spine edge,
+data runs right to left in the component-side view. VDD 3.7 to 5.5 V; VIH 0.65 VDD; 12 mA per colour;
+0.6 mA static; maker says use 70 % when all three colours are lit. Not verified: operation below 3.7 V
+(a LiPo spends much of its life at 3.6 to 3.8 V; expect blue to fade first).
+
+**ESP32-S3-MINI-1-N8 (C2913206).** Espressif datasheet v1.7 (`datasheets/ESP32-S3-MINI-1_en.pdf`).
+65 pins. TOUCH1 to 14 are GPIO1 to 14. ADC1 is GPIO1 to 10. RTC (wake-capable) GPIOs are 0 to 21.
+USB D- is GPIO19, D+ is GPIO20. Strapping: GPIO0 (pull-up, boot), GPIO3 (floating), GPIO45, GPIO46
+(pull-down). EN must not float. Deep sleep 7 to 8 uA; 18 uA with touch wake at 1 % duty.
+
+**LIS2DH12 (C110926).** LGA-12: 1 SCL, 2 CS (tie high for I2C), 3 SA0 (internal pull-up; address 0x19
+high, 0x18 low), 4 SDA, 5 Res (to GND), 6 to 8 GND, 9 Vdd, 10 Vdd_IO, 11 INT2, 12 INT1.
+
+**RT9080-33GJ5 (C841192).** TSOT-23-5: 1 VIN, 2 GND, 3 EN, 4 NC, 5 VOUT. VIN 1.2 to 5.5 V. EN high
+above 0.9 V, low below 0.4 V, absolute max 6.5 V. Shutdown 0.1 uA typ. Drawn with KiCad's XC6220B331MR
+symbol, which has the same pin numbers.
+
+**MCP73831T-2ACI/OT (C424093).** SOT-23-5: 1 STAT, 2 VSS, 3 VBAT, 4 VDD, 5 PROG. 4.7 uF minimum on VDD.
+Charge current 1000 V / RPROG. STAT is a three-state output (datasheet section 3).
+
+**MSK12C02 (C431540).** Maker's drawing: pin 2 is the common, joined to 1 or 3 by the slider; 4 is the
+frame. Signal pins are on the side away from the knob. Rated 50 mA at 12 V.
+
+## Check before ordering
+
+| Item | What to check |
+|---|---|
+| LIS2DH12 footprint | JLCPCB's footprint service returned nothing for C110926, so its placement row is KiCad's own position and rotation. The upload accepted it; look at pin 1 in the preview |
+| Parts matched by position | J1, J2, J3, SW1, SW2, SW3, U4 in the placement preview (pad names differ between the libraries) |
+| Side LED direction | In JLCPCB's placement preview: every spine LED's window faces off the board, and the two eye LEDs face into the hole |
+| Parts at the edge of an irregular board | From a web search of JLCPCB's help pages on 2026-11-22 (figures differ between their pages; not read in full): Standard assembly requires edge rails and fiducials; JLCPCB adds 5 mm rails if asked; part bodies should be 2.5 mm or more from the board edge unless rails provide the clearance; irregular outlines are held to the rails by tabs or mouse bites (4 to 5 mm wide); parts overhanging the outline need a slot in the rail. Consequences to settle at placement: where the tabs may attach (not on the spine edge between LEDs, not at the USB socket or switch), whether to draw our own panel to control that, and which order-form option the owner picks for rails. the owner's draft upload raised nothing he mentioned |
+| LiPo connector polarity | The cell actually bought, against the + pad of the footprint. Jumpers SJ1, SJ2 swap it. Silkscreen + and - at J2, and "unplug cell; cut both, then bridge both" at the jumpers |
+| The cell itself | Must be a protected cell (its own cut-off circuit), JST-PH 2 mm, 500 mAh or more: the charger's 213 mA is too much for cells under about 250 mAh |
+| Qwiic pin 1 | Footprint pad 1 against a real Qwiic cable: 1 GND, 2 3V3, 3 SDA, 4 SCL |
+| Antenna | Module antenna end at a board edge with the keepout the datasheet asks for |
+| FET pinouts | AO3401A and 2N7002 gate, source, drain against their datasheets |
+
+## Reviews
+
+### Review 1, 2026-11-22: netlist against datasheets (independent reader)
+
+Verdict: no blocker. Every IC and connector pin matched its datasheet; every netlist pin has a pad.
+
+Fixed:
+
+| Finding | Fix |
+|---|---|
+| A deeply flat cell could never recharge: the charger trickles 21 mA below 2.79 V and USB always wakes the module, which draws more | U6 TLV803S holds EN low below 2.93 V; R16 to 100k so that state draws 30 uA |
+| Polarity jumpers could short the cell ahead of the fuse (one changed and not the other, or three pads blobbed) | F1 moved to the connector pin, ahead of the jumpers |
+| CHG_STAT and VBUS_DET highs not guaranteed at low USB voltage (VBUS / 2 against VIH 2.475 V) | R9, R19 to 200k: 2.93 V at 4.4 V, 3.5 V at 5.25 V |
+| LED rail turn-on: estimated 2 A, 100 us inrush with C10 gate to source | C10 moved gate to drain: about 60 mA over 1.5 ms |
+| Off state held by 1M against switch leakage | R4, R5 to 200k (reviewer suggested 470k, which is an extended part) |
+| C3, C4 1 uF 0402 under bias give less than the regulator's 1 uF | Both to 10 uF 0805 |
+| Few test points for a board with no second spin | TP12 EN, TP13 LED_EN, TP14 LDO_EN, TP15 CHG_STAT, TP16 EYE_DIN |
+| 2N7002 pinout unverified | Read from the datasheet: 1 G, 2 S, 3 D |
+
+Left as is:
+
+| Finding | Why |
+|---|---|
+| No hardware under-voltage cut-off; over-discharge protection is firmware plus the cell's own circuit | U6 stops the module below about 2.95 V but the cell can rebound and restart it, so it is not a true cut-off. The cell must be a protected one: now a purchase requirement |
+| Reversed cell with USB plugged in is drained at 21 mA through Q1 rather than blocked | No cheap fix. Nothing is damaged. Silkscreen + and - at J2; check with a meter before the first USB plug |
+| Full-white current (about 0.8 A plus the module) is at the fuse's hold rating and sags VLED by 0.3 to 0.5 V | Firmware cap: about 0.3 A total for the LEDs |
+| Charger dissipates about 0.5 W at the start of fast charge and will fold back | Harmless; give U2 pin 2 copper and keep it away from the cell (layout) |
+| VBAT_SENSE feeds about 4 uA into GPIO10 when the regulator is off | Harmless |
+| VBUS_DET stays high 1 to 2 s after unplugging | Firmware debounce |
+
+Needs a decision: none. The owner approved the supervisor U6 on 2026-11-22.
+
+Not verified by the reviewer: Qwiic pad-1 side against a cable; polyfuse figures (from the LCSC page);
+module current between 2.4 and 2.8 V; the inrush figure (hand estimate); CircuitPython behaviours.
+
+### Re-review of the changes above, 2026-11-22 (same reviewer, changed items only)
+
+Fixed:
+
+| Finding | Fix |
+|---|---|
+| Regression from my own change: with SW1 on and no USB, R4 (200k) fed the battery back onto VBUS, leaving VBUS at about 2 V and VBUS_DET between the module's guaranteed low and high. "USB present" could read true with nothing plugged in, and a USB-C charger might refuse to start | D23 1N4148W in series with R4, anode on VBUS. USB alone still gives about 1.9 to 2.4 V on LDO_EN against a 0.9 V threshold |
+| U6 discharged C32 (1 uF) through its open-drain output on every trip: estimated 10 to 25 mA peak against a 5 mA limit | C32 to 100 nF, R32 1k in series with U6's output (peak 3.3 mA). EN now rises in about 10 ms after U6's own 200 ms delay |
+
+Left as is:
+
+| Finding | Why |
+|---|---|
+| Standing current with SW1 on and the module asleep is about 45 to 50 uA (was about 22 to 25 uA before the review fixes) | Buys a firm off state and the supervisor. About a year from a full 500 mAh cell. 470k for R4 / R5 would save 12 uA but is an extended part |
+| U6 now decides where the toy cuts out under load: about 3.0 to 3.1 V idle, 3.2 to 3.45 V in a Wi-Fi burst, higher with bright LEDs. Hysteresis is only 40 mV, so a firmware that re-applies the load reboots about 3 times a second | Firmware: read VBAT_SENSE at start-up before lighting anything and sleep below about 3.5 V; keep the LED cap |
+| Plugging the cell in (or USB with no cell) turns Q2 on for 40 to 50 ms through C10 | Harmless; a brief random flash is possible because the data pins float then |
+| Rail turn-off is slow (about 60 ms) with Q2 in its linear region | About 15 mJ worst case, fine for SOT-23. Firmware: blank the LEDs first |
+| VBUS_DET and CHG_STAT reach 3.67 V at a 5.5 V supply, 70 mV over the module's limit | Through 67k: under 1 uA |
+| TP13 (LED_EN) is the gate of Q3 behind 100k while the module is asleep | Keep it on the parts side under the cover (all test points are) |
+
+Checked and found correct by the reviewer: TLV803 DBZ pinout and open-drain output from its datasheet;
+the moved fuse covers every jumper state; C10 gate-to-drain in every transition; 2N7002 and AO3401A
+pinouts from their datasheets; pad names for all parts.
+
+Not verified: how real USB-C chargers react to voltage on VBUS (now moot with D23); the Q2 transition
+figures are hand calculations; SK6812 behaviour during the plug-in blip; the last three edits (D23, R32,
+C32) have not had a third independent pass.
+
+## Placement draft (2026-11-22)
+
+Where things are, seen from the parts side (head on the right):
+
+| Area | What is there |
+|---|---|
+| Spine edge | D1 to D20, firing off the edge, D1 at the head; each LED's 100 nF 3.7 mm inboard |
+| Head | Eye hole (7 mm, placeholder) with D21 and D22 on its rim; LED rail switch (Q2, Q3) below it; RESET and BOOT buttons in the snout |
+| Neck | Module U4, antenna end at the throat edge |
+| Between module and battery | Supervisor, EN parts, the 12 touch resistors, battery and USB sense dividers |
+| Mid body | Battery area 36 x 26 mm, kept free of parts |
+| Belly edge | USB-C J1 and slide switch SW1, with the USB protection beside them |
+| Tail side of the battery | Battery connector J2 (opening towards the battery), polarity jumpers, fuse, charger, regulator |
+| Rear flipper root | Accelerometer |
+| Tail | Qwiic J3, opening at the underside edge |
+
+Checks on this draft, 2026-11-22:
+
+- DRC with schematic parity: no missing or extra footprints and no net conflicts (140 field-difference
+  warnings, which are noise); no courtyard overlaps, shorts or clearance errors; 318 unconnected items
+  (there are no tracks); 2 edge-clearance errors, both known: a frame pad of SW1 against the curved
+  belly edge (the outline needs a flat there), and a shell slot of J1 (its position is the maker's).
+- `tools/check_leds.py`: 22 LEDs, all facing their edge or the eye hole, chains in order, faces 0.10 mm
+  inside the edge.
+- `jlc_cpl.py`: every footprint matches JLCPCB's within 0.28 mm, including the supervisor and diode.
+  Still to look at in the preview: D23 (polarised), U5 (no JLCPCB footprint data), the connectors.
+- USB-C: board edge 2.66 mm in front of the footprint origin, from the maker's drawing (5.79 mm from
+  the rear shell slots). The connector overhangs the edge by about 1 mm.
+- Slide switch: wholly on the board; its knob overhangs the edge by about 0.85 mm.
+
+Known weaknesses, to settle with the new outline:
+
+- The spine electrodes (back copper, 4 to 11 mm from the edge) sit behind the LED supply and data
+  tracks, and the flipper and snout electrodes sit behind parts (buttons, accelerometer). Each adds
+  stray capacitance and noise to that touch channel. The electrode shapes are placeholders.
+- A mounting hole could not go in the rear flipper without cutting its electrode; all three holes
+  (snout, belly behind the battery connector, tail) are placeholders until the case exists.
+- The module's antenna has the throat edge in front of it but parts and copper to both sides; the
+  datasheet's keepout cannot be met on this shape. Bluetooth and Wi-Fi range will be reduced.
+- The belly edge is curved where the USB socket and switch sit.
+- No room has been reserved for JLCPCB's tabs.
+
+## Outline
+
+- `outline/make_outline.py` writes `mosasaurus_outline.svg` (outline only, mm) and
+  `mosasaurus_concept.svg/png` (outline with LEDs, touch zones and the big parts sketched in).
+- Draft 1: 211.6 x 73.6 mm, spine edge 139 mm, 20 LEDs at 6.9 mm pitch. Closed mouth; jaw line and teeth
+  are to be artwork, not outline. Not approved; the owner will change it.
+
+## For the case
+
+- Parts, battery and connectors on the back, under a printed cover; the front stays bare.
+- Translucent ridge along the spine as the light guide. The side LEDs stand 2.0 mm off the board.
+- Eye: a hole (7 mm in the draft, size to be agreed) with a printed translucent plug lit from its rim
+  by two LEDs that stand 2.0 mm off the back of the board.
+- `output/dinolight.step` is the board for the case design (most small parts have no 3D model in it).
+- Battery space sketched as 36 x 28 mm (a 500 to 600 mAh cell). Keep that area of the board free of
+  parts: a pouch cell must not rest on solder joints.
+- USB-C and the slide switch must be reachable; BOOT and RESET by a pin hole at least.
+- Fixing the board to the case is undecided (the owner, 2026-11-22: press fit has no loose small parts, but
+  what goes in can be pulled out). The board has three 2.7 mm (M2.5) holes H1 to H3 at placeholder
+  positions. My
+  recommendation: keep holes and use screws, because the thing to keep a child out of is the LiPo.
+  Alternative with no holes: back shell plus a front rim screwed together from behind.
+
+## For firmware
+
+Pin map (as in the schematic):
+
+| GPIO | Use |
+|---|---|
+| 0 | BOOT button |
+| 1, 2, 4, 5, 6, 7, 8, 9 | Spine touch segments 1 to 8, head to tail |
+| 11, 12, 13, 14 | Touch: snout, front flipper, rear flipper, tail |
+| 3 | Not used (strapping pin); test point |
+| 10 | VBAT_SENSE: battery / 2 (ADC1) |
+| 15, 16 | Accelerometer INT1 (wake), INT2 |
+| 17 | CHG_STAT: high = charge complete; low = charging, or no USB |
+| 18 | VBUS_DET: high = USB present |
+| 19, 20 | USB D-, D+ |
+| 21 | LED_EN: high = LED rail on; pulled down |
+| 41, 42 | I2C SDA, SCL: accelerometer (0x19) and Qwiic |
+| 47 | Spine LED data, 20 LEDs, first LED at the head |
+| 48 | Eye LED data, 2 LEDs |
+| 43, 44 | UART0 TX, RX on test points |
+
+- Turn the LED rail off before sleeping. Drive both LED data pins low (or release them) before taking
+  LED_EN low: a high data pin back-feeds the dead rail through the LED's input, about 8 mA per line.
+- Cap total LED current at about 0.3 A: the maker allows 70 % with all colours lit, 22 LEDs at full
+  white would be about 0.8 A, and the fuse holds 1.1 A.
+- After LED_EN goes high the rail takes about 2 ms to rise; wait 5 ms before sending data. Blank the
+  LEDs before taking LED_EN low: the rail takes about 60 ms to fall.
+- At start-up read VBAT_SENSE before lighting anything, and go back to sleep below about 3.5 V: the
+  supervisor resets the module if the 3.3 V rail dips under 2.93 V, and a load that is re-applied on
+  every boot becomes a reboot loop.
+- After releasing RESET the module starts about 0.2 s later (U6's delay).
+- CHG_STAT reads "charging" with no cell fitted, and VBUS_DET stays high for 1 to 2 s after unplugging.
+- Deep-sleep wake: use the accelerometer's INT1 on GPIO15. Touch wake is limited (reviewer, from memory:
+  one pad).
+- CircuitPython's status LED is IO48, the eye; it stays dark unless the build names GPIO21 as its
+  power pin (from memory, unverified).
+- Read touch between LED frames; LED data runs behind the spine electrodes.
+- Sleep at about 3.5 V so the cell's own protection never has to act.
+- With USB plugged in and the charge finished, the charger never sees its termination current while the
+  board is awake (the board's own draw exceeds it), so it holds the cell at 4.2 V. Sleep when CHG_STAT
+  goes high or after a time limit.
+
+## Not fitted by the assembler
+
+- LiPo cell (bought separately).
+- Nothing else: SJ1, SJ2, test points, touch electrodes and holes are board features.
+
+## Files
+
+| File | What it is |
+|---|---|
+| `NOTES.md` | this |
+| `tools/design_spec.py` | the parts and nets, declared once: the source of truth |
+| `tools/schematic.py` | draws the schematic from the spec (overwrites the `.kicad_sch` files) |
+| `dinolight.kicad_sch`, `mcu.kicad_sch`, `leds.kicad_sch` | the schematic: power; module, touch, accelerometer; LEDs |
+| `output/schematic.pdf`, `output/schematic_p1..3.png` | the schematic to read |
+| `tools/flat_netlist.py`, `build/sch/netlist_flat.txt` | flattened netlist for review |
+| `tools/build_board.py` | builds `dinolight.kicad_pcb` from the netlist: outline, placement, nets. Overwrites the board |
+| `dinolight.kicad_pcb`, `dinolight.kicad_pro` | the board (draft placement, no tracks) |
+| `output/board_parts_side.png`, `board_show_face.png`, `board_1to1_parts_side.pdf`, `dinolight.step` | renders, a 1:1 print and a STEP of the board |
+| `tools/make_bom.py` | JLCPCB-format BOM from the netlist |
+| `lib/DinoLight.kicad_sym`, `lib/DinoLight.pretty/` | own symbols (side LED, slide switch, VLED rail) and footprints (side LED, touch anchor) |
+| `datasheets/` | maker datasheets, named by C-number, plus Espressif's English module datasheet |
+| `outline/` | outline generator and its SVG / PNG output |
+| `tools/build_draft.py`, `draft/` | the quote-only draft board, its renders and upload set (`draft/jlc/`) |
+| `tools/check_leds.py` | checks spine LED direction, edge distance and chain order on any board |
+| `tools/fpinfo.py` | prints pad and courtyard extents of library footprints |
+| `kicad-user/` | KiCad's documents folder for this project (set `KICAD_DOCUMENTS_HOME` to it) |
