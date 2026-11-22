@@ -51,7 +51,7 @@ CLUSTERS = [
     ('LED rail switch, head', (33.5, 44.7, 47.4, 54.6),
      'Q2 Q3 C8 R11 R13 C10 R12 R14 R15 TP5 TP13 TP16'),
     ('module support', (71, 40, 92.6, 52.6),
-     'U6 C36 R32 R16 C32 TP12 R20 R21 R22 R23 R24 R25 R26 R27 R28 R29 R30 R31 R6 R7 C7 R8 R9 TP6 TP7 TP8'),
+     'U7 C37 C38 R33 R34 U6 C36 R32 R16 C32 TP12 R20 R21 R22 R23 R24 R25 R26 R27 R28 R29 R30 R31 R6 R7 C7 R8 R9 TP6 TP7 TP8'),
     ('battery input', (131.5, 35.3, 143.6, 42.6), 'F1 SJ1 SJ2'),
     ('charger and regulator', (143.9, 40, 152.2, 56), 'Q1 U2 R3 C1 C2 R10 R19 TP3 TP4 TP15'),
     ('regulator, enable', (152.5, 41.5, 166.3, 51.6), 'U3 C3 C4 D23 R4 R5 TP1 TP2 TP14'),
@@ -288,13 +288,48 @@ def main():
 
     stems = ['SPINE%d' % i for i in range(1, 9)] + ['SNOUT', 'FLIP_F', 'FLIP_R', 'TAIL']
     ref_to_stem = {'E%d' % (i + 1): s_ for i, s_ in enumerate(stems)}
-    segs, _ = mo.along(mo.spine, 6.0, (mo.spine_len - 12.0) / 8, 9)
-    for i, (a, b) in enumerate(zip(segs, segs[1:]), 1):
-        ca, sa, cb, sb = (math.cos(math.radians(a[2])), math.sin(math.radians(a[2])),
-                          math.cos(math.radians(b[2])), math.sin(math.radians(b[2])))
-        ax, ay, bx_, by_ = a[0] + 0.6 * ca, a[1] + 0.6 * sa, b[0] - 0.6 * cb, b[1] - 0.6 * sb
-        quad = [(ax - sa * 4, ay + ca * 4), (bx_ - sb * 4, by_ + cb * 4), (bx_ - sb * 11, by_ + cb * 11), (ax - sa * 11, ay + ca * 11)]
-        electrode('E%d' % i, quad, (sum(p[0] for p in quad) / 4, sum(p[1] for p in quad) / 4))
+    # Spine: 8 electrodes in a band 4 to 11 mm in from the edge. Neighbours meet along a chevron, so a
+    # finger always covers two of them and its position can be interpolated from the two readings.
+    cum = [0.0]
+    for a, b in zip(mo.spine, mo.spine[1:]):
+        cum.append(cum[-1] + math.dist(a, b))
+
+    def along_spine(s, depth):
+        """point at distance s along the spine edge, `depth` mm in from it (show-face mm)"""
+        s = min(max(s, 0.0), cum[-1] - 1e-6)
+        k = max(i_ for i_ in range(len(cum) - 1) if cum[i_] <= s)
+        (x0, y0), (x1, y1) = mo.spine[k], mo.spine[k + 1]
+        L = cum[k + 1] - cum[k]
+        f = (s - cum[k]) / L
+        tx, ty = (x1 - x0) / L, (y1 - y0) / L
+        return (x0 + f * (x1 - x0) - ty * depth, y0 + f * (y1 - y0) + tx * depth)
+
+    S0, S1, D0, D1, AMP, HALF_GAP = 6.0, mo.spine_len - 6.0, 4.0, 11.0, 4.0, 0.4
+    bounds = [S0 + (S1 - S0) * k / 8 for k in range(9)]
+
+    def run(sa_, sb_, depth):
+        n_ = max(2, int(abs(sb_ - sa_) / 2.0) + 1)
+        return [along_spine(sa_ + (sb_ - sa_) * q / n_, depth) for q in range(n_ + 1)]
+
+    for j in range(8):
+        left, right = bounds[j], bounds[j + 1]
+        dm = (D0 + D1) / 2
+        if j == 0:
+            l_top, l_mid, l_bot = left, None, left
+        else:
+            l_top, l_mid, l_bot = left + HALF_GAP - AMP, left + HALF_GAP + AMP, left + HALF_GAP - AMP
+        if j == 7:
+            r_top, r_mid, r_bot = right, None, right
+        else:
+            r_top, r_mid, r_bot = right - HALF_GAP - AMP, right - HALF_GAP + AMP, right - HALF_GAP - AMP
+        poly = [along_spine(l_top, D0)]
+        if l_mid is not None:
+            poly.append(along_spine(l_mid, dm))
+        poly += run(l_bot, r_bot, D1)
+        if r_mid is not None:
+            poly.append(along_spine(r_mid, dm))
+        poly += run(r_top, l_top, D0)[:-1]
+        electrode('E%d' % (j + 1), poly, along_spine((left + right) / 2 + (AMP / 2 if 0 < j < 7 else 0), dm))
     for ref, (cx, cy, rx, ry, rot) in zip(('E9', 'E10', 'E11', 'E12'),
                                           [(24, 46.5, 9, 3.2, 8), (89, 78, 5.5, 9, -28), (151, 68, 4.5, 7, -30), (204, 60, 3.2, 9, -38)]):
         c_, s_ = math.cos(math.radians(rot)), math.sin(math.radians(rot))

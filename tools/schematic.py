@@ -209,7 +209,7 @@ P.note(240, 164, 'Page 2: module, touch, accelerometer.', 'Page 3: LED rail, eye
 # Page 2: module, touch, accelerometer
 # =====================================================================================
 M.frame(12, 14, 112, 120, 'Touch electrodes (bare front face, under solder mask)')
-for i, (stem, pin, gpio, what) in enumerate(spec.TOUCH):
+for i, (stem, what) in enumerate(spec.TOUCH):
     y = 30 + 7 * i
     M.glabel('T_' + stem, 34, y, rot=180)
     rr = M.part('R%d' % (20 + i), 44, y, rot=90, ref=(0, -2.3, 'c'), val=None)
@@ -217,8 +217,19 @@ for i, (stem, pin, gpio, what) in enumerate(spec.TOUCH):
     M.wire(rr.p(2), (66, y))
     M.part('E%d' % (i + 1), 58, y, ref=(1.5, -2.6, 'l'), val=None)
     M.glabel('PAD_' + stem, 66, y)
-    M.hint('%s, GPIO%d' % (what, gpio), 86, y)
-M.note(14, 113, 'R20 to R31 are 470R: static and noise protection in series with each electrode.')
+    M.hint('%s, ELE%d' % (what, i), 86, y)
+M.note(14, 113, 'R20 to R31 are 470R: static protection in series with each electrode.')
+
+M.frame(12, 124, 112, 174, 'Touch controller MPR121 (I2C 0x5A)')
+u7 = M.part('U7', 62, 150, ref=(-8, -15.5, 'l'), val=(2, 15.5, 'l'))
+M.connect_all(u7, length=2)
+M.connect_all(M.part('C37', 94, 146))
+M.connect_all(M.part('R34', 20, 138, ref=(-2.4, 0, 'r'), val=None))
+M.connect_all(M.part('R33', 28, 150, ref=(-2.4, 0, 'r'), val=None))
+M.connect_all(M.part('C38', 36, 150, ref=(-2.4, 0, 'r'), val=None))
+M.note(14, 162, 'R34 100k pulls up IRQ (open collector).', 'R33 75k 1 % sets the charge current.',
+       'C38 100 nF on the internal regulator.', 'ADDR to ground: address 0x5A.',
+       'IRQ on GPIO1 can wake the module.')
 
 M.frame(116, 14, 204, 120, 'ESP32-S3 module')
 u4 = M.part('U4', 160, 68, ref=(-10, -23.5, 'l'), val=(2.5, -23.5, 'l'))
@@ -226,7 +237,7 @@ gnd = [str(p) for p in (2, 42, 43) + tuple(range(46, 66))]
 M.connect_all(u4, skip=gnd, length=3)
 M.note(118, 100, 'GPIO0 (BOOT) has an internal pull-up. GPIO3, 45, 46 are strapping',
        'pins left open: their defaults give a normal boot with USB.',
-       'GPIO19 / 20 are the USB pair. Touch is GPIO1, 2, 4 to 9, 11 to 14.',
+       'GPIO19 / 20 are the USB pair. Touch is read by U7, not the module.',
        'IO21 high = LED rail on. IO47 = spine data, IO48 = eye data.',
        'Unlabelled pins are spare and not brought out.')
 
@@ -300,10 +311,10 @@ for i, net in enumerate(spec.TESTPOINTS[5:10]):
     tp = M.part('TP%d' % (6 + i), 130 + 15 * i, 132, ref=(1.5, -2.6, 'l'), val=None)
     M.connect_all(tp)
 
-M.frame(12, 124, 112, 215, 'For firmware')
-M.note(14, 131,
-       'Touch          GPIO1, 2, 4-9 = spine 1-8 (head to tail)',
-       '               GPIO11 snout, 12 front flipper, 13 rear flipper, 14 tail',
+M.frame(12, 178, 112, 215, 'For firmware')
+M.note(14, 184,
+       'Touch          MPR121 at 0x5A: ELE0-7 spine 1-8 (head to tail), ELE8 snout,',
+       '               9 front flipper, 10 rear flipper, 11 tail. TOUCH_IRQ on GPIO1',
        'VBAT_SENSE     GPIO10, battery / 2',
        'ACC_INT1, 2    GPIO15, GPIO16',
        'CHG_STAT       GPIO17, high = charge complete',
@@ -313,7 +324,6 @@ M.note(14, 131,
        'SPINE_DATA     GPIO47, 20 LEDs, first at the head',
        'EYE_DATA       GPIO48, 2 LEDs',
        'UART           GPIO43 TX, GPIO44 RX on test points',
-       '',
        'Turn the LED rail off before sleeping: each LED draws 0.6 mA when dark.',
        'Limit brightness: the LED maker allows 70 % with all three colours lit.')
 

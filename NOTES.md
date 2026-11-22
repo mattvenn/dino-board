@@ -2,7 +2,8 @@
 
 Mosasaurus-shaped light-up PCB, a toy for a young child.
 20 side-emitting addressable LEDs along the spine, a two-LED eye, ESP32-S3 module running CircuitPython,
-accelerometer, 12 capacitive touch zones on the bare front face, LiPo, USB-C.
+accelerometer, 12 capacitive touch zones on the bare front face read by an MPR121 touch controller,
+LiPo, USB-C.
 JLCPCB Standard assembly, parts on one side. 2 layers.
 
 Decisions marked "owner" are the owner's; those marked "mine" were made by the AI assistant doing the
@@ -17,15 +18,15 @@ design work and are open to change.
   accelerometer was accepted; the reverse-mount eye LED came back with quantity 0 ("hard to place").
   The preview shows USB, switch, battery connector and module facing as intended. The draft predates
   the schematic and must not be ordered.
-- 2026-11-22: schematic drawn from `tools/design_spec.py` by `tools/schematic.py`: 3 pages, 140 parts,
-  82 nets. KiCad's netlist matches the declared nets with 0 differences. ERC: 1 warning, accepted
+- 2026-11-22: schematic drawn from `tools/design_spec.py` by `tools/schematic.py`: 3 pages, 145 parts,
+  85 nets. KiCad's netlist matches the declared nets with 0 differences. ERC: 1 warning, accepted
   (U5 SA0 tied to 3V3; KiCad calls the pin bidirectional). Pages rendered and looked at.
 - Review 1 (netlist against datasheets) done 2026-11-22: no blocker, four should-fix, all acted on.
   Re-review of those changes done 2026-11-22: it found one regression and one should-fix, both fixed as
   the reviewer specified (D23, R32, C32). Those last three edits were checked by my own arithmetic and
   the netlist comparison, not by a third independent pass. See Reviews.
 - 2026-11-22: DRAFT of the real board built from the schematic's netlist by `tools/build_board.py`
-  (`dinolight.kicad_pcb`): draft outline, 140 footprints placed and linked to their symbols, every pad
+  (`dinolight.kicad_pcb`): draft outline, 145 footprints placed and linked to their symbols, every pad
   on its net, touch electrodes on the back copper on their nets, eye hole. NO TRACKS. Placement is a
   first pass on an outline the owner will replace; it has not had mechanical sign-off. See "Placement draft".
 - Git repository set up 2026-11-22 (branch `main`, local only, no remote).
@@ -49,7 +50,9 @@ design work and are open to change.
 | Bare PCB front is the show face: artwork and touch pads, no cover | "Clearly a made thing" | owner |
 | CircuitPython | Easy to change later: edit `code.py` on the USB drive | owner |
 | Battery bought locally at the destination, not shipped with the toy | Lithium cells are restricted in the post | owner |
-| ESP32-S3-MINI-1-N8, touch read by the module itself | 14 touch channels on GPIO1 to 14 (datasheet v1.7 table 3-1), so no touch controller chip | mine, open |
+| ESP32-S3-MINI-1-N8 module | Native USB (no bridge chip), deep sleep, Bluetooth, in stock. Cheaper modules checked 2026-11-22: ESP32-S2-MINI-2 ($2.89) loses Bluetooth and the two LED data pins; ESP32-C3-MINI-1 ($3.05) is no better. Saving about $9 on five boards: not worth it | mine, open |
+| Dedicated touch controller U7 (MPR121, 12 channels, I2C 0x5A), not the module's own touch pins | The owner has not had good results with the ESP32's built-in touch. The MPR121 has a CircuitPython library, an interrupt that can wake the module, and gives per-electrode readings, so the eight spine pads can be read as a slider. Others checked at JLCPCB on 2026-11-22: AT42QT2120 (in-chip slider, but only across three channels, SOIC-20, no library), CAP1188 / CAP1298 (8 channels, low stock), Azoteq IQS7222 (none in stock) | owner |
+| Spine electrodes meet along chevrons | A finger always covers two neighbours, so its position can be interpolated from the two readings: the spine is a slider about 127 mm long | mine, open |
 | 470R in series with each touch electrode | Static and noise protection; electrodes are under solder mask only | mine, open |
 | Eye = hole in the board with two side LEDs (D21, D22) on its rim firing inward into a printed plug | JLCPCB returned the reverse-mount SK6812MINI-E as hard to place (quantity 0). Same part as the spine, one fewer extended part type, bigger eye | mine, open |
 | LEDs powered from the battery only, never from USB 5 V | LED input high threshold is 0.65 x VDD (datasheet): 2.73 V at 4.2 V, fine for 3.3 V logic; 3.25 V at 5 V, not fine. Avoids a level shifter | mine, open |
@@ -92,7 +95,9 @@ The owner's upload on 2026-11-22 matched every line by C-number.
 | TS-1187A-B-A-B tact switch x2 | C318884 | 712,048 | Economic and Standard | basic | $0.02 | SW_Push_1P1T_XKB_TS-1187A | |
 | JST SM04B-SRSS-TB (Qwiic) | C160404 | 4,603 | Economic and Standard | ext | $0.21 | JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal | used before |
 | Polyfuse 1.1 A 1812 | C21000 | 38,340 | Economic and Standard | ext | $0.15 | Fuse_1812 (0.28 mm) | used before |
-| TLV803SDBZR supervisor | C132016 | 31,902 | Economic and Standard | ext | $0.19 | SOT-23 | footprint vs JLCPCB not yet run |
+| TLV803SDBZR supervisor | C132016 | 31,902 | Economic and Standard | ext | $0.19 | SOT-23 (0.08 mm) | |
+| MPR121QR2 touch controller | C91322 | 662 | Economic and Standard | ext | $2.69 | UQFN-20_3x3mm_P0.4mm (20 of 20 pads, 0.00 mm) | stock is modest: re-check before ordering |
+| 75k 1 % 0603 (MPR121 reference) | C23242 | 630,247 | Economic and Standard | basic | | 0603 | 75k in 0402 is an extended part |
 | 1N4148W diode | C81598 | 4,479,389 | Economic and Standard | basic | $0.01 | D_SOD-123 | which pad is the cathode, KiCad against JLCPCB (polarised: check in the preview) |
 | 0402 R: 330R, 470R, 1k, 4.7k, 5.1k, 10k, 100k, 200k, 1M | C25104, C25117, C11702, C25900, C25905, C25744, C25741, C25764, C26083 | millions | Economic and Standard | basic | | 0402 | 150k, 470k, 68k in 0402 are extended parts: avoided |
 | 100 nF 0402, 10 uF 0805 | C1525, C15850 | millions | Economic and Standard | basic | | 0402 / 0805 | |
@@ -102,13 +107,18 @@ C2890037 (Standard Only, MSL 5a); LIS3DHTR C15134 (pre-order).
 
 Cost: the owner's quote for the draft on 2026-11-22: EUR 143 before tax and shipping, 5 assembled. Parts were
 $51.78 of that (ESP32 $23.67, side LEDs $9.40, accelerometer $4.44, charger $3.95). The rest is fees.
-12 extended part types now (the eye LED went, the supervisor came; the diode and new resistor values
+13 extended part types now (the eye LED went, the supervisor and touch controller came; the diode and new resistor values
 are basic parts). The breakdown between board, setup
 and extended-part fees is not known.
 
 **TLV803SDBZR (C132016).** TI datasheet: DBZ package 1 GND, 2 RESET (open drain, active low), 3 VDD.
 Threshold 2.93 V, hysteresis 40 mV typ, 200 ms delay, 9 uA typ. Drawn with KiCad's TPS3839DBZ symbol
 (same pin numbers).
+
+**MPR121QR2 (C91322).** NXP datasheet: QFN-20, 1 IRQ (open collector, active low), 2 SCL, 3 SDA,
+4 ADDR (to VSS = address 0x5A), 5 VREG (0.1 uF to VSS when VDD is 2.0 to 3.6 V), 6 VSS, 7 REXT (75k 1 %
+to VSS), 8 to 19 ELE0 to ELE11, 20 VDD (0.1 uF). VDD 1.71 to 3.6 V. JLCPCB's listing gives 29 uA
+running and 3 uA stopped; not yet read from the datasheet's own table.
 
 **AO3401A (C15127), 2N7002 (C8545).** Both 1 gate, 2 source, 3 drain (AOS datasheet read by the reviewer;
 Changjing datasheet text read by me). 2N7002 threshold 1 to 2.5 V.
@@ -192,6 +202,10 @@ Needs a decision: none. The owner approved the supervisor U6 on 2026-11-22.
 Not verified by the reviewer: Qwiic pad-1 side against a cable; polyfuse figures (from the LCSC page);
 module current between 2.4 and 2.8 V; the inrush figure (hand estimate); CircuitPython behaviours.
 
+### Review of the touch controller change: requested 2026-11-22, NOT yet in
+
+Covers U7 and its support parts, the re-pointed electrode nets, and how D23, R32 and C32 were applied.
+
 ### Re-review of the changes above, 2026-11-22 (same reviewer, changed items only)
 
 Fixed:
@@ -238,8 +252,8 @@ Where things are, seen from the parts side (head on the right):
 
 Checks on this draft, 2026-11-22:
 
-- DRC with schematic parity: no missing or extra footprints and no net conflicts (140 field-difference
-  warnings, which are noise); no courtyard overlaps, shorts or clearance errors; 318 unconnected items
+- DRC with schematic parity: no missing or extra footprints and no net conflicts (145 field-difference
+  warnings, which are noise); no courtyard overlaps, shorts or clearance errors; 332 unconnected items
   (there are no tracks); 2 edge-clearance errors, both known: a frame pad of SW1 against the curved
   belly edge (the outline needs a flat there), and a shell slot of J1 (its position is the maker's).
 - `tools/check_leds.py`: 22 LEDs, all facing their edge or the eye hole, chains in order, faces 0.10 mm
@@ -292,8 +306,8 @@ Pin map (as in the schematic):
 | GPIO | Use |
 |---|---|
 | 0 | BOOT button |
-| 1, 2, 4, 5, 6, 7, 8, 9 | Spine touch segments 1 to 8, head to tail |
-| 11, 12, 13, 14 | Touch: snout, front flipper, rear flipper, tail |
+| 1 | TOUCH_IRQ from the MPR121: low when a touch or release is waiting; can wake the module |
+| 2, 4 to 9, 11 to 14 | Spare, not brought out |
 | 3 | Not used (strapping pin); test point |
 | 10 | VBAT_SENSE: battery / 2 (ADC1) |
 | 15, 16 | Accelerometer INT1 (wake), INT2 |
@@ -321,7 +335,12 @@ Pin map (as in the schematic):
   one pad).
 - CircuitPython's status LED is IO48, the eye; it stays dark unless the build names GPIO21 as its
   power pin (from memory, unverified).
-- Read touch between LED frames; LED data runs behind the spine electrodes.
+- Touch: MPR121 at I2C 0x5A. ELE0 to ELE7 are spine 1 to 8 (head to tail), ELE8 snout, ELE9 front
+  flipper, ELE10 rear flipper, ELE11 tail. Adafruit's CircuitPython MPR121 library should drive it
+  (from memory, unverified). For the slider, take each spine electrode's baseline minus its filtered
+  reading and compute the weighted centre.
+- LED data and supply tracks run behind the spine electrodes: expect to tune thresholds with the LEDs
+  running.
 - Sleep at about 3.5 V so the cell's own protection never has to act.
 - With USB plugged in and the charge finished, the charger never sees its termination current while the
   board is awake (the board's own draw exceeds it), so it holds the cell at 4.2 V. Sleep when CHG_STAT

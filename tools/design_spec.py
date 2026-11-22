@@ -17,11 +17,9 @@ SYMLIB = os.path.join(ROOT, 'lib', 'DinoLight.kicad_sym')
 
 N_LED = 20                      # spine LEDs D1..D20, D1 at the head
 EYE = ('D21', 'D22')            # eye LEDs, their capacitors are C31 and C35
-# touch channel -> (net stem, module pin number, GPIO, what it is)
-TOUCH = [('SPINE%d' % (i + 1), pin, gpio, 'spine %d' % (i + 1)) for i, (pin, gpio) in
-         enumerate([(5, 1), (6, 2), (8, 4), (9, 5), (10, 6), (11, 7), (12, 8), (13, 9)])]
-TOUCH += [('SNOUT', 15, 11, 'snout'), ('FLIP_F', 16, 12, 'front flipper'),
-          ('FLIP_R', 17, 13, 'rear flipper'), ('TAIL', 18, 14, 'tail')]
+# touch channels, in MPR121 electrode order ELE0..ELE11: (net stem, what it is). ELEn is U7 pin 8 + n.
+TOUCH = [('SPINE%d' % (i + 1), 'spine %d' % (i + 1)) for i in range(8)]
+TOUCH += [('SNOUT', 'snout'), ('FLIP_F', 'front flipper'), ('FLIP_R', 'rear flipper'), ('TAIL', 'tail')]
 TESTPOINTS = ['GND', '+3V3', '+BATT', 'VBUS', 'VLED', 'UART_TX', 'UART_RX', 'IO3', 'SDA', 'SCL', 'SPINE_OUT',
               'EN', 'LED_EN', 'LDO_EN', 'CHG_STAT', 'EYE_DIN']
 
@@ -90,6 +88,7 @@ def ensure_symbols():
 
 
 # ------------------------------------------------------------------ parts and nets
+R0603 = 'Resistor_SMD:R_0603_1608Metric'
 R0402, C0402, C0805 = 'Resistor_SMD:R_0402_1005Metric', 'Capacitor_SMD:C_0402_1005Metric', 'Capacitor_SMD:C_0805_2012Metric'
 SOT23 = 'Package_TO_SOT_SMD:SOT-23'
 RES = {'1k': 'C11702', '330R': 'C25104', '470R': 'C25117', '4.7k': 'C25900', '5.1k': 'C25905', '10k': 'C25744', '100k': 'C25741',
@@ -122,6 +121,9 @@ def declare(d):
     d.comp('U2', 'Battery_Management:MCP73831-2-OT', 'MCP73831T-2ACI/OT', 'Package_TO_SOT_SMD:SOT-23-5', lcsc='C424093')
     d.comp('U3', 'Regulator_Linear:XC6220B331MR', 'RT9080-33GJ5', 'Package_TO_SOT_SMD:TSOT-23-5', lcsc='C841192')
     d.comp('U4', 'RF_Module:ESP32-S3-MINI-1', 'ESP32-S3-MINI-1-N8', 'RF_Module:ESP32-S2-MINI-1', lcsc='C2913206')
+    # touch controller: 12 channels on I2C (0x5A), interrupt can wake the module
+    d.comp('U7', 'Sensor_Touch:MPR121QR2', 'MPR121QR2', 'Package_DFN_QFN:UQFN-20_3x3mm_P0.4mm', lcsc='C91322')
+    d.comp('R33', 'Device:R', '75k 1%', R0603, lcsc='C23242')      # MPR121 reference current; 0603 is the basic part
     # supervisor: holds the module in reset below 2.93 V so a flat cell can take the charger's trickle
     d.comp('U6', 'Power_Supervisor:TPS3839DBZ', 'TLV803SDBZR', SOT23, lcsc='C132016')
     d.comp('U5', 'Sensor_Motion:LIS2DE12', 'LIS2DH12TR', 'Package_LGA:LGA-12_2x2mm_P0.5mm', lcsc='C110926')
@@ -143,18 +145,18 @@ def declare(d):
     r('R3 R17 R18', '4.7k')
     r('R6 R7', '1M')
     r('R4 R5 R9 R19', '200k')
-    r('R8 R10 R11 R12 R16', '100k')
+    r('R8 R10 R11 R12 R16 R34', '100k')
     r('R13', '10k')
     r('R32', '1k')
     r('R14 R15', '330R')
     r(' '.join('R%d' % (20 + i) for i in range(len(TOUCH))), '470R')
     c('C1 C2 C3 C4 C5 C8 C9 C34', '10uF')
-    c('C6 C7 C10 C32 C33 C35 C36 ' + ' '.join('C%d' % (10 + i) for i in range(1, N_LED + 2)), '100nF')
+    c('C6 C7 C10 C32 C33 C35 C36 C37 C38 ' + ' '.join('C%d' % (10 + i) for i in range(1, N_LED + 2)), '100nF')
     # board features with nothing to buy
     for ref in ('SJ1', 'SJ2'):
         d.comp(ref, 'Jumper:SolderJumper_3_Bridged12', 'polarity',
                'Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm', nobom=True)
-    for i, (stem, pin, gpio, what) in enumerate(TOUCH, 1):
+    for i, (stem, what) in enumerate(TOUCH, 1):
         d.comp('E%d' % i, 'Connector:TestPoint', what, 'DinoLight:TouchAnchor', nobom=True)
     for i, net in enumerate(TESTPOINTS, 1):
         d.comp('TP%d' % i, 'Connector:TestPoint', net, 'TestPoint:TestPoint_Pad_D1.5mm', nobom=True)
@@ -165,14 +167,14 @@ def declare(d):
     u4_gnd = ['U4.%d' % p for p in (1, 2, 42, 43) + tuple(range(46, 66))]
     n('GND', 'J1.A1', 'J1.A12', 'J1.B1', 'J1.B12', 'J1.SH', 'R1.2', 'R2.2', 'U1.2', 'C1.2', 'U2.2', 'R3.2', 'C2.2', 'R19.2',
       'J2.MP', 'SJ1.3', 'SJ2.1', 'Q1.1', 'C3.2', 'U3.2', 'C4.2', 'SW1.SH', 'R5.2', 'R7.2', 'C7.2', 'R9.2',
-      *u4_gnd, 'C5.2', 'C6.2', 'C32.2', 'SW2.2', 'SW3.2', 'U6.1', 'C36.2', 'U5.5', 'U5.6', 'U5.7', 'U5.8', 'C33.2', 'C34.2',
+      *u4_gnd, 'C5.2', 'C6.2', 'C32.2', 'SW2.2', 'SW3.2', 'U6.1', 'C36.2', 'U7.6', 'U7.4', 'C37.2', 'C38.2', 'R33.2', 'U5.5', 'U5.6', 'U5.7', 'U5.8', 'C33.2', 'C34.2',
       'J3.1', 'J3.MP', 'Q3.2', 'R12.2', 'C8.2', 'C9.2', 'D21.4', 'D22.4', 'C31.2', 'C35.2', 'TP1.1',
       *['D%d.4' % i for i in range(1, N_LED + 1)], *['C%d.2' % (10 + i) for i in range(1, N_LED + 1)])
     n('VBUS', 'J1.A4', 'J1.A9', 'J1.B4', 'J1.B9', 'U1.5', 'C1.1', 'U2.4', 'D23.2', 'R8.1', 'TP4.1')
     n('EN_USB', 'D23.1', 'R4.1')
     n('+BATT', 'Q1.2', 'U2.3', 'C2.1', 'SW1.1', 'U3.1', 'C3.1', 'R6.1', 'Q2.2', 'R11.1', 'TP3.1')
     n('+3V3', 'U3.5', 'C4.1', 'U4.3', 'C5.1', 'C6.1', 'R16.1', 'U5.2', 'U5.3', 'U5.9', 'U5.10', 'C33.1', 'C34.1',
-      'R17.1', 'R18.1', 'J3.2', 'TP2.1', 'U6.3', 'C36.1')
+      'R17.1', 'R18.1', 'J3.2', 'TP2.1', 'U6.3', 'C36.1', 'U7.20', 'C37.1', 'R34.1')
     n('VLED', 'Q2.3', 'C8.1', 'C9.1', 'C10.2', 'D21.2', 'D22.2', 'C31.1', 'C35.1', 'TP5.1',
       *['D%d.2' % i for i in range(1, N_LED + 1)], *['C%d.1' % (10 + i) for i in range(1, N_LED + 1)])
     # battery input
@@ -199,12 +201,15 @@ def declare(d):
     n('IO3', 'U4.7', 'TP8.1')
     n('UART_TX', 'U4.39', 'TP6.1')
     n('UART_RX', 'U4.40', 'TP7.1')
-    for i, (stem, pin, gpio, what) in enumerate(TOUCH):
-        n('T_' + stem, 'U4.%d' % pin, 'R%d.1' % (20 + i))
+    for i, (stem, what) in enumerate(TOUCH):
+        n('T_' + stem, 'U7.%d' % (8 + i), 'R%d.1' % (20 + i))
         n('PAD_' + stem, 'R%d.2' % (20 + i), 'E%d.1' % (i + 1))
+    n('TOUCH_IRQ', 'U7.1', 'R34.2', 'U4.5')        # open collector, active low; GPIO1 can wake the module
+    n('MPR_VREG', 'U7.5', 'C38.1')
+    n('MPR_REXT', 'U7.7', 'R33.1')
     # accelerometer and I2C
-    n('SDA', 'U4.37', 'U5.4', 'R17.2', 'J3.3', 'TP9.1')
-    n('SCL', 'U4.38', 'U5.1', 'R18.2', 'J3.4', 'TP10.1')
+    n('SDA', 'U4.37', 'U5.4', 'U7.3', 'R17.2', 'J3.3', 'TP9.1')
+    n('SCL', 'U4.38', 'U5.1', 'U7.2', 'R18.2', 'J3.4', 'TP10.1')
     n('ACC_INT1', 'U4.19', 'U5.12')
     n('ACC_INT2', 'U4.20', 'U5.11')
     # LEDs
@@ -221,4 +226,4 @@ def declare(d):
     n('EYE_1', 'D21.3', 'D22.1')
     # deliberately open
     d.nc('J1.A8', 'J1.B8', 'SW1.3', 'D22.3', 'U3.4',
-         *['U4.%d' % p for p in (26, 28, 29, 31, 32, 33, 34, 35, 36, 41, 44)])
+         *['U4.%d' % p for p in (6, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 26, 28, 29, 31, 32, 33, 34, 35, 36, 41, 44)])
