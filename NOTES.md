@@ -52,7 +52,8 @@ design work and are open to change.
 | Battery bought locally at the destination, not shipped with the toy | Lithium cells are restricted in the post | owner |
 | ESP32-S3-MINI-1-N8 module | Native USB (no bridge chip), deep sleep, Bluetooth, in stock. Cheaper modules checked 2026-11-22: ESP32-S2-MINI-2 ($2.89) loses Bluetooth and the two LED data pins; ESP32-C3-MINI-1 ($3.05) is no better. Saving about $9 on five boards: not worth it | mine, open |
 | Dedicated touch controller U7 (MPR121, 12 channels, I2C 0x5A), not the module's own touch pins | The owner has not had good results with the ESP32's built-in touch. The MPR121 has a CircuitPython library, an interrupt that can wake the module, and gives per-electrode readings, so the eight spine pads can be read as a slider. Others checked at JLCPCB on 2026-11-22: AT42QT2120 (in-chip slider, but only across three channels, SOIC-20, no library), CAP1188 / CAP1298 (8 channels, low stock), Azoteq IQS7222 (none in stock) | owner |
-| Spine electrodes meet along chevrons | A finger always covers two neighbours, so its position can be interpolated from the two readings: the spine is a slider about 127 mm long | mine, open |
+| The touch slider runs the whole length of the LED run | So a light can follow the finger: touch with no LED above it, or LEDs with no touch below, would spoil that | owner |
+| Slider electrodes interleave with long teeth: 8 segments, each with one central tooth reaching to the next segment's centre between two half-teeth of its neighbour | Atmel AT11805 (in `datasheets/`) calls this spatial interpolation: touch area passes linearly from one electrode to the next, so position can be interpolated. Its figures followed here: tooth sections 3 to 4 mm tall (3 mm used), tips no thinner than 0.25 mm (0.3 used). The note's own long-slider circuits are mutual-capacitance designs for Atmel's PTC, and its resistor-interpolated version does not apply to a self-capacitance chip like the MPR121; the electrode shape does. Segment pitch is 20.7 mm, wider than the 8 mm keys the note's standard slider uses, which is what the long teeth compensate for | mine, open |
 | 470R in series with each touch electrode | Static and noise protection; electrodes are under solder mask only | mine, open |
 | Eye = hole in the board with two side LEDs (D21, D22) on its rim firing inward into a printed plug | JLCPCB returned the reverse-mount SK6812MINI-E as hard to place (quantity 0). Same part as the spine, one fewer extended part type, bigger eye | mine, open |
 | LEDs powered from the battery only, never from USB 5 V | LED input high threshold is 0.65 x VDD (datasheet): 2.73 V at 4.2 V, fine for 3.3 V logic; 3.25 V at 5 V, not fine. Avoids a level shifter | mine, open |
@@ -279,8 +280,7 @@ Checks on this draft, 2026-11-22:
 
 - DRC with schematic parity: no missing or extra footprints and no net conflicts (146 field-difference
   warnings, which are noise); no courtyard overlaps, shorts or clearance errors; 333 unconnected items
-  (there are no tracks); 2 edge-clearance errors, both known: a frame pad of SW1 against the curved
-  belly edge (the outline needs a flat there), and a shell slot of J1 (its position is the maker's).
+  (there are no tracks); no edge-clearance errors now that the connectors sit on a belly flat.
 - `tools/check_leds.py`: 22 LEDs, all facing their edge or the eye hole, chains in order, faces 0.10 mm
   inside the edge.
 - `jlc_cpl.py`: every footprint matches JLCPCB's within 0.28 mm, including the supervisor and diode.
@@ -291,22 +291,27 @@ Checks on this draft, 2026-11-22:
 
 Known weaknesses, to settle with the new outline:
 
-- The spine electrodes (back copper, 4 to 11 mm from the edge) sit behind the LED supply and data
+- The spine electrodes (back copper, 4.5 to 10.5 mm from the edge) sit behind the LED supply and data
   tracks, and the flipper and snout electrodes sit behind parts (buttons, accelerometer). Each adds
   stray capacitance and noise to that touch channel. The electrode shapes are placeholders.
 - A mounting hole could not go in the rear flipper without cutting its electrode; all three holes
   (snout, belly behind the battery connector, tail) are placeholders until the case exists.
 - The module's antenna has the throat edge in front of it but parts and copper to both sides; the
   datasheet's keepout cannot be met on this shape. Bluetooth and Wi-Fi range will be reduced.
-- The belly edge is curved where the USB socket and switch sit.
 - No room has been reserved for JLCPCB's tabs.
 
 ## Outline
 
 - `outline/make_outline.py` writes `mosasaurus_outline.svg` (outline only, mm) and
   `mosasaurus_concept.svg/png` (outline with LEDs, touch zones and the big parts sketched in).
-- Draft 1: 211.6 x 73.6 mm, spine edge 139 mm, 20 LEDs at 6.9 mm pitch. Closed mouth; jaw line and teeth
-  are to be artwork, not outline. Not approved; the owner will change it.
+- Current draft: 225.6 x 72.6 mm. Closed mouth (jaw line and teeth are to be artwork or part of the
+  printed case, not outline), tail 14 mm longer than the first draft, and a 26 mm flat on the belly for
+  the USB socket and slide switch, which the case will hide. LED and slider run 152.6 mm, 20 LEDs at
+  7.7 mm pitch.
+- An open-mouthed outline traced from a reference illustration (214.6 x 107 mm, tall upswept tail) was
+  tried on 2026-11-22; the owner preferred this one. It is in the git history of `make_outline.py`.
+- The owner's guidance, 2026-11-22: the PCB only has to carry the shape, since detail can go in the 3D
+  print; one flipper front and one rear is enough.
 
 ## For the case
 
