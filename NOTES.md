@@ -18,7 +18,7 @@ design work and are open to change.
   accelerometer was accepted; the reverse-mount eye LED came back with quantity 0 ("hard to place").
   The preview shows USB, switch, battery connector and module facing as intended. The draft predates
   the schematic and must not be ordered.
-- 2026-11-22: schematic drawn from `tools/design_spec.py` by `tools/schematic.py`: 3 pages, 145 parts,
+- 2026-11-22: schematic drawn from `tools/design_spec.py` by `tools/schematic.py`: 3 pages, 146 parts,
   85 nets. KiCad's netlist matches the declared nets with 0 differences. ERC: 1 warning, accepted
   (U5 SA0 tied to 3V3; KiCad calls the pin bidirectional). Pages rendered and looked at.
 - Review 1 (netlist against datasheets) done 2026-11-22: no blocker, four should-fix, all acted on.
@@ -26,7 +26,7 @@ design work and are open to change.
   the reviewer specified (D23, R32, C32). Those last three edits were checked by my own arithmetic and
   the netlist comparison, not by a third independent pass. See Reviews.
 - 2026-11-22: DRAFT of the real board built from the schematic's netlist by `tools/build_board.py`
-  (`dinolight.kicad_pcb`): draft outline, 145 footprints placed and linked to their symbols, every pad
+  (`dinolight.kicad_pcb`): draft outline, 146 footprints placed and linked to their symbols, every pad
   on its net, touch electrodes on the back copper on their nets, eye hole. NO TRACKS. Placement is a
   first pass on an outline the owner will replace; it has not had mechanical sign-off. See "Placement draft".
 - Git repository set up 2026-11-22 (branch `main`, local only, no remote).
@@ -115,10 +115,11 @@ and extended-part fees is not known.
 Threshold 2.93 V, hysteresis 40 mV typ, 200 ms delay, 9 uA typ. Drawn with KiCad's TPS3839DBZ symbol
 (same pin numbers).
 
-**MPR121QR2 (C91322).** NXP datasheet: QFN-20, 1 IRQ (open collector, active low), 2 SCL, 3 SDA,
+**MPR121QR2 (C91322).** NXP datasheet (rev 4): QFN-20, no exposed pad, 1 IRQ (open collector, active low), 2 SCL, 3 SDA,
 4 ADDR (to VSS = address 0x5A), 5 VREG (0.1 uF to VSS when VDD is 2.0 to 3.6 V), 6 VSS, 7 REXT (75k 1 %
-to VSS), 8 to 19 ELE0 to ELE11, 20 VDD (0.1 uF). VDD 1.71 to 3.6 V. JLCPCB's listing gives 29 uA
-running and 3 uA stopped; not yet read from the datasheet's own table.
+to VSS), 8 to 19 ELE0 to ELE11, 20 VDD (0.1 uF). VDD 1.71 to 3.6 V. Supply current (datasheet table 5,
+read by the reviewer): 3 uA stopped, which is its state after power-on; 8 / 11 / 17 / 29 uA running at
+128 / 64 / 32 / 16 ms sample intervals. Electrode capacitance range 10 pF to over 2000 pF.
 
 **AO3401A (C15127), 2N7002 (C8545).** Both 1 gate, 2 source, 3 drain (AOS datasheet read by the reviewer;
 Changjing datasheet text read by me). 2N7002 threshold 1 to 2.5 V.
@@ -202,9 +203,33 @@ Needs a decision: none. The owner approved the supervisor U6 on 2026-11-22.
 Not verified by the reviewer: Qwiic pad-1 side against a cable; polyfuse figures (from the LCSC page);
 module current between 2.4 and 2.8 V; the inrush figure (hand estimate); CircuitPython behaviours.
 
-### Review of the touch controller change: requested 2026-11-22, NOT yet in
+### Review 3, 2026-11-22: the touch controller change (same reviewer, changed items only)
 
-Covers U7 and its support parts, the re-pointed electrode nets, and how D23, R32 and C32 were applied.
+Verdict: no blocker and no should-fix. U7 is wired as the datasheet's 2.0 to 3.6 V circuit; its package has
+no exposed pad and matches the footprint; address 0x5A does not clash with the accelerometer (0x19); 470R
+in series is negligible to a constant-current measurement; D23, R32 and C32 were applied correctly and
+VBUS_DET now reads a clean low with the switch on and no USB.
+
+Fixed:
+
+| Finding | Fix |
+|---|---|
+| No test point on TOUCH_IRQ | TP17 added |
+
+Left as is:
+
+| Finding | Why |
+|---|---|
+| IRQ stays low until the touch status is read; sleeping with it low draws 33 uA through R34 and wakes at once | Firmware: read the status before sleeping; wake on GPIO1 low |
+| MPR121 scans on its own clock, so it cannot be synchronised with LED frames; supply steps out of regulation can look like touches | Firmware: 10 or more first-filter samples, debounce, ignore touch when the battery is low. Layout: keep LED data and VLED tracks from running under or beside electrode tracks |
+| Unplugging USB takes 1.6 to 3.7 s to read low on VBUS_DET (C1 discharging through 300k) | Firmware debounce. Lower divider values would need extended parts |
+| Several Qwiic add-ons also use 0x5A | ADDR could go to +3V3 for 0x5B if it ever matters |
+| U7 has no reset pin | Firmware sends the soft reset (register 0x80) at start-up |
+| The module's former touch pins are open pads | Harmless; firmware can park them with a pull |
+| Electrode tracks up to 150 mm are themselves touch-sensitive, and a moving LiPo pouch next to an electrode reads as touch | Layout: thin electrode tracks away from other zones, electrodes and their tracks clear of the battery area |
+
+Not verified by the reviewer: electrode capacitance (hand estimates); the supply-step and LED-coupling
+effects (reasoning, not measured); CircuitPython's wake rules.
 
 ### Re-review of the changes above, 2026-11-22 (same reviewer, changed items only)
 
@@ -252,8 +277,8 @@ Where things are, seen from the parts side (head on the right):
 
 Checks on this draft, 2026-11-22:
 
-- DRC with schematic parity: no missing or extra footprints and no net conflicts (145 field-difference
-  warnings, which are noise); no courtyard overlaps, shorts or clearance errors; 332 unconnected items
+- DRC with schematic parity: no missing or extra footprints and no net conflicts (146 field-difference
+  warnings, which are noise); no courtyard overlaps, shorts or clearance errors; 333 unconnected items
   (there are no tracks); 2 edge-clearance errors, both known: a frame pad of SW1 against the curved
   belly edge (the outline needs a flat there), and a shell slot of J1 (its position is the maker's).
 - `tools/check_leds.py`: 22 LEDs, all facing their edge or the eye hole, chains in order, faces 0.10 mm
@@ -340,7 +365,11 @@ Pin map (as in the schematic):
   (from memory, unverified). For the slider, take each spine electrode's baseline minus its filtered
   reading and compute the weighted centre.
 - LED data and supply tracks run behind the spine electrodes: expect to tune thresholds with the LEDs
-  running.
+  running. Use 10 or more first-filter samples and some debounce.
+- MPR121: send the soft reset (0x80) at start-up. Read the touch status before sleeping, or IRQ stays
+  low. For touch-to-wake leave it running at a 32 to 64 ms sample interval (11 to 17 uA) and wake on
+  GPIO1 low; otherwise stop it (3 uA).
+- Ignore touch when the battery is low: readings shift when the 3.3 V rail drops out of regulation.
 - Sleep at about 3.5 V so the cell's own protection never has to act.
 - With USB plugged in and the charge finished, the charger never sees its termination current while the
   board is awake (the board's own draw exceeds it), so it holds the cell at 4.2 V. Sleep when CHG_STAT

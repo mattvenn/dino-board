@@ -50,8 +50,8 @@ EXPLICIT = {                                 # ref: (x, y, board rotation)
 CLUSTERS = [
     ('LED rail switch, head', (33.5, 44.7, 47.4, 54.6),
      'Q2 Q3 C8 R11 R13 C10 R12 R14 R15 TP5 TP13 TP16'),
-    ('module support', (71, 40, 92.6, 52.6),
-     'U7 C37 C38 R33 R34 U6 C36 R32 R16 C32 TP12 R20 R21 R22 R23 R24 R25 R26 R27 R28 R29 R30 R31 R6 R7 C7 R8 R9 TP6 TP7 TP8'),
+    ('module support', (71, 40, 92.6, 53.4),
+     'U7 C37 C38 R33 R34 TP17 U6 C36 R32 R16 C32 TP12 R20 R21 R22 R23 R24 R25 R26 R27 R28 R29 R30 R31 R6 R7 C7 R8 R9 TP6 TP7 TP8'),
     ('battery input', (131.5, 35.3, 143.6, 42.6), 'F1 SJ1 SJ2'),
     ('charger and regulator', (143.9, 40, 152.2, 56), 'Q1 U2 R3 C1 C2 R10 R19 TP3 TP4 TP15'),
     ('regulator, enable', (152.5, 41.5, 166.3, 51.6), 'U3 C3 C4 D23 R4 R5 TP1 TP2 TP14'),
@@ -241,10 +241,13 @@ def main():
         bx0, bx1 = MIRROR - x1, MIRROR - x0
         by0, by1 = y0 + YOFF, y1 + YOFF
         cx, cy, rowh, used = bx0, by0, 0.0, 0.0
+        sized = []
         for ref in refs.split():
             fp = load(ref)
             fp.SetPosition(vec(0, 0))
-            l, t, r, b = courtyard(fp)
+            sized.append((ref, fp) + courtyard(fp))
+        sized.sort(key=lambda s_: -(s_[5] - s_[3]))          # tallest first, so each row wastes little height
+        for ref, fp, l, t, r, b in sized:
             w, h = r - l, b - t
             if cx + w > bx1 + 1e-6:
                 cx, cy, rowh = bx0, cy + rowh + GAP, 0.0
@@ -376,4 +379,14 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    import shutil
+    backup = OUT + '.bak'
+    if os.path.exists(OUT):
+        shutil.copy2(OUT, backup)                # a failed build must not leave an empty board behind
+    try:
+        main()
+    except BaseException:
+        if os.path.exists(backup):
+            shutil.copy2(backup, OUT)
+            print('build failed: previous board restored')
+        raise

@@ -21,7 +21,7 @@ EYE = ('D21', 'D22')            # eye LEDs, their capacitors are C31 and C35
 TOUCH = [('SPINE%d' % (i + 1), 'spine %d' % (i + 1)) for i in range(8)]
 TOUCH += [('SNOUT', 'snout'), ('FLIP_F', 'front flipper'), ('FLIP_R', 'rear flipper'), ('TAIL', 'tail')]
 TESTPOINTS = ['GND', '+3V3', '+BATT', 'VBUS', 'VLED', 'UART_TX', 'UART_RX', 'IO3', 'SDA', 'SCL', 'SPINE_OUT',
-              'EN', 'LED_EN', 'LDO_EN', 'CHG_STAT', 'EYE_DIN']
+              'EN', 'LED_EN', 'LDO_EN', 'CHG_STAT', 'EYE_DIN', 'TOUCH_IRQ']
 
 
 # ------------------------------------------------------------------ project symbols
@@ -204,7 +204,7 @@ def declare(d):
     for i, (stem, what) in enumerate(TOUCH):
         n('T_' + stem, 'U7.%d' % (8 + i), 'R%d.1' % (20 + i))
         n('PAD_' + stem, 'R%d.2' % (20 + i), 'E%d.1' % (i + 1))
-    n('TOUCH_IRQ', 'U7.1', 'R34.2', 'U4.5')        # open collector, active low; GPIO1 can wake the module
+    n('TOUCH_IRQ', 'U7.1', 'R34.2', 'U4.5', 'TP17.1')        # open collector, active low; GPIO1 can wake the module
     n('MPR_VREG', 'U7.5', 'C38.1')
     n('MPR_REXT', 'U7.7', 'R33.1')
     # accelerometer and I2C

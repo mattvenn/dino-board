@@ -4069,6 +4069,17 @@
 	)
 	(wire
 		(pts
+			(xy 132.08 193.04)
+			(xy 132.08 195.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2e02344d-561b-577b-86cb-63981de4ea16")
+	)
+	(wire
+		(pts
 			(xy 165.1 167.64)
 			(xy 165.1 170.18)
 		)
@@ -8395,6 +8406,106 @@
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/0c96d094-96fc-57b3-9e7e-c76ee58288f9"
 					(reference "#PWR43")
 					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 132.08 193.04 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "1c0de1fe-38e6-501f-9869-e4ff0fdf61d6")
+		(property "Reference" "TP17"
+			(at 133.985 189.738 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TOUCH_IRQ"
+			(at 132.08 193.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 132.08 193.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 132.08 193.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 132.08 193.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "138d6f9f-375c-5c91-bafb-8689b75fab4e")
+		)
+		(instances
+			(project "dinolight"
+				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/0c96d094-96fc-57b3-9e7e-c76ee58288f9"
+					(reference "TP17")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(global_label "TOUCH_IRQ"
+		(shape passive)
+		(at 132.08 195.58 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "45614891-d2ee-546b-b858-088418012a4c")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 132.08 195.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
