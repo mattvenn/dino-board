@@ -16,7 +16,6 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SYMLIB = os.path.join(ROOT, 'lib', 'DinoLight.kicad_sym')
 
 N_LED = 20                      # spine LEDs D1..D20, D1 at the head
-EYE = ('D21', 'D22')            # eye LEDs, their capacitors are C31 and C35
 # touch channels, in MPR121 electrode order ELE0..ELE11: (net stem, what it is). ELEn is U7 pin 8 + n.
 TOUCH = [('SPINE%d' % (i + 1), 'spine %d' % (i + 1)) for i in range(8)]
 TOUCH += [('SNOUT', 'snout'), ('FLIP_F', 'front flipper'), ('FLIP_R', 'rear flipper'), ('TAIL', 'tail')]
@@ -138,8 +137,9 @@ def declare(d):
     d.comp('SW3', 'Switch:SW_Push', 'BOOT', 'Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A', lcsc='C318884')
     for i in range(1, N_LED + 1):
         d.comp('D%d' % i, 'DinoLight:SK6812SIDE-A', 'SK6812SIDE-A', 'DinoLight:LED_SK6812SIDE-A_4.0x1.6mm', lcsc='C5378721')
-    for ref in EYE:      # the eye: same side LEDs, on the rim of a hole, firing inward into a printed plug
-        d.comp(ref, 'DinoLight:SK6812SIDE-A', 'SK6812SIDE-A', 'DinoLight:LED_SK6812SIDE-A_4.0x1.6mm', lcsc='C5378721')
+    # the eye: a reverse-mount LED on the parts side, shining through a slot to the show face.
+    # JLCPCB rates it 'assembly difficulty high, Standard only'. Pins 1 GND, 2 DIN, 3 VDD, 4 DOUT.
+    d.comp('D21', 'LED:SK6812MINI-E', 'SK6812MINI-E', 'LED_SMD:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount', lcsc='C5149201')
     # passives
     r('R1 R2', '5.1k')
     r('R3 R17 R18', '4.7k')
@@ -151,7 +151,7 @@ def declare(d):
     r('R14 R15', '330R')
     r(' '.join('R%d' % (20 + i) for i in range(len(TOUCH))), '470R')
     c('C1 C2 C3 C4 C5 C8 C9 C34', '10uF')
-    c('C6 C7 C10 C32 C33 C35 C36 C37 C38 ' + ' '.join('C%d' % (10 + i) for i in range(1, N_LED + 2)), '100nF')
+    c('C6 C7 C10 C32 C33 C36 C37 C38 ' + ' '.join('C%d' % (10 + i) for i in range(1, N_LED + 2)), '100nF')
     # board features with nothing to buy
     for ref in ('SJ1', 'SJ2'):
         d.comp(ref, 'Jumper:SolderJumper_3_Bridged12', 'polarity',
@@ -168,14 +168,14 @@ def declare(d):
     n('GND', 'J1.A1', 'J1.A12', 'J1.B1', 'J1.B12', 'J1.SH', 'R1.2', 'R2.2', 'U1.2', 'C1.2', 'U2.2', 'R3.2', 'C2.2', 'R19.2',
       'J2.MP', 'SJ1.3', 'SJ2.1', 'Q1.1', 'C3.2', 'U3.2', 'C4.2', 'SW1.SH', 'R5.2', 'R7.2', 'C7.2', 'R9.2',
       *u4_gnd, 'C5.2', 'C6.2', 'C32.2', 'SW2.2', 'SW3.2', 'U6.1', 'C36.2', 'U7.6', 'U7.4', 'C37.2', 'C38.2', 'R33.2', 'U5.5', 'U5.6', 'U5.7', 'U5.8', 'C33.2', 'C34.2',
-      'J3.1', 'J3.MP', 'Q3.2', 'R12.2', 'C8.2', 'C9.2', 'D21.4', 'D22.4', 'C31.2', 'C35.2', 'TP1.1',
+      'J3.1', 'J3.MP', 'Q3.2', 'R12.2', 'C8.2', 'C9.2', 'D21.1', 'C31.2', 'TP1.1',
       *['D%d.4' % i for i in range(1, N_LED + 1)], *['C%d.2' % (10 + i) for i in range(1, N_LED + 1)])
     n('VBUS', 'J1.A4', 'J1.A9', 'J1.B4', 'J1.B9', 'U1.5', 'C1.1', 'U2.4', 'D23.2', 'R8.1', 'TP4.1')
     n('EN_USB', 'D23.1', 'R4.1')
     n('+BATT', 'Q1.2', 'U2.3', 'C2.1', 'SW1.1', 'U3.1', 'C3.1', 'R6.1', 'Q2.2', 'R11.1', 'TP3.1')
     n('+3V3', 'U3.5', 'C4.1', 'U4.3', 'C5.1', 'C6.1', 'R16.1', 'U5.2', 'U5.3', 'U5.9', 'U5.10', 'C33.1', 'C34.1',
       'R17.1', 'R18.1', 'J3.2', 'TP2.1', 'U6.3', 'C36.1', 'U7.20', 'C37.1', 'R34.1')
-    n('VLED', 'Q2.3', 'C8.1', 'C9.1', 'C10.2', 'D21.2', 'D22.2', 'C31.1', 'C35.1', 'TP5.1',
+    n('VLED', 'Q2.3', 'C8.1', 'C9.1', 'C10.2', 'D21.3', 'C31.1', 'TP5.1',
       *['D%d.2' % i for i in range(1, N_LED + 1)], *['C%d.1' % (10 + i) for i in range(1, N_LED + 1)])
     # battery input
     n('BAT_P1', 'J2.1', 'F1.1')            # the fuse is in series with the connector pin, ahead of the jumpers
@@ -222,8 +222,7 @@ def declare(d):
         n('SPINE_%d' % i, 'D%d.3' % i, 'D%d.1' % (i + 1))
     n('SPINE_OUT', 'D%d.3' % N_LED, 'TP11.1')
     n('EYE_DATA', 'U4.30', 'R15.1')
-    n('EYE_DIN', 'R15.2', 'D21.1', 'TP16.1')
-    n('EYE_1', 'D21.3', 'D22.1')
+    n('EYE_DIN', 'R15.2', 'D21.2', 'TP16.1')
     # deliberately open
-    d.nc('J1.A8', 'J1.B8', 'SW1.3', 'D22.3', 'U3.4',
+    d.nc('J1.A8', 'J1.B8', 'SW1.3', 'D21.4', 'U3.4',
          *['U4.%d' % p for p in (6, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 26, 28, 29, 31, 32, 33, 34, 35, 36, 41, 44)])

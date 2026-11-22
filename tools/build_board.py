@@ -32,11 +32,10 @@ MYLIB = os.path.join(ROOT, 'lib', 'DinoLight.pretty')
 NETLIST = os.path.join(ROOT, 'build', 'sch', 'netlist.net')
 OUT = os.path.join(ROOT, 'dinolight.kicad_pcb')
 MIRROR, YOFF = 240.0, 10.0
-GAP = 0.4                                    # between courtyards when packing
+GAP = 0.65                                   # between courtyards when packing: room for a track or two
 mm = pcbnew.FromMM
 
 # ---------------------------------------------------------------- where things go (show-face mm)
-EYE_R = 3.5                                  # eye hole radius; D21 on the snout side, D22 opposite
 HOLES = {'H1': (30, 40.5), 'H2': (134.5, 57.5), 'H3': (207, 44)}      # placeholders until the case is designed
 BATTERY = (94, 34, 130, 60)                  # keep free of parts
 USB_X, SWITCH_X = 115.0, 101.0               # along the belly flat
@@ -61,11 +60,12 @@ CLUSTERS = [
     ('accelerometer', (141, 57.4, 151.6, 64.6), 'U5 C33 R17 R18 C34 TP9 TP10'),
 ]
 # single touch pads: electrode ref -> (centre x, y, half-width, half-length, rotation)
+ANCHOR = {'E9': (13.5, 46.6)}                # where a pad's plated hole goes, if not at its centre
 PADS = {'E9': (24, 46.5, 9, 3.2, 8), 'E10': (89, 78, 5.5, 9, -28), 'E11': (151, 68, 4.5, 7, -30), 'E12': (218, 60, 3.2, 9, -38)}
 # Slider: 8 electrodes along the whole LED run, in a band this far in from the edge. Neighbours interleave
 # with long teeth (after Atmel AT11805 "spatial interpolation": sections 3 to 4 mm tall, tips no thinner
 # than 0.25 mm), so touch area passes linearly from one electrode to the next.
-BAND = (4.5, 10.5)
+BAND = (5.5, 11.5)
 END_PAD, CENTRE_FLAT, TIP, HALF_GAP_S = 4.0, 1.5, 0.3, 0.8
 
 def B(x, y):
@@ -144,7 +144,14 @@ def main():
     board = pcbnew.NewBoard(OUT)
     ds = board.GetDesignSettings()
     ds.m_MinClearance = mm(0.15)                 # JLCPCB's comfortable working figure; the LGA and QFN need it
-    ds.m_NetSettings.GetDefaultNetclass().SetClearance(mm(0.15))
+    ds.m_TrackMinWidth = mm(0.15)
+    ds.m_ViasMinSize = mm(0.5)
+    ds.m_MinThroughDrill = mm(0.3)
+    nc = ds.m_NetSettings.GetDefaultNetclass()
+    nc.SetClearance(mm(0.15))
+    nc.SetTrackWidth(mm(0.15))                   # signals; supply nets are widened in tools/route_board.py
+    nc.SetViaDiameter(mm(0.5))
+    nc.SetViaDrill(mm(0.3))
     placed = {}
 
     def load(ref):
@@ -188,13 +195,6 @@ def main():
     s.SetWidth(mm(0.1))
     board.Add(s)
     ex, ey = mo.EYE
-    c = pcbnew.PCB_SHAPE(board)
-    c.SetShape(pcbnew.SHAPE_T_CIRCLE)
-    c.SetCenter(vec(*B(ex, ey)))
-    c.SetEnd(vec(B(ex, ey)[0] + EYE_R, B(ex, ey)[1]))
-    c.SetLayer(pcbnew.Edge_Cuts)
-    c.SetWidth(mm(0.1))
-    board.Add(c)
 
     # ---- nets
     netinfo = {}
@@ -203,21 +203,25 @@ def main():
         board.Add(ni)
         netinfo[name] = ni
 
-    # ---- spine LEDs, D1 at the neck, each with its capacitor just inboard
+    # ---- spine LEDs, D1 at the head. Each has its 100 nF standing radially just inboard of its VDD pad,
+    #      supply end towards the LED, so the strip can be routed without crossings (tools/route_board.py).
     for i, (x, y, a) in enumerate(mo.leds, 1):
         nxs, nys = math.sin(math.radians(a)), -math.cos(math.radians(a))      # outward normal, show face
         nx, ny = -nxs, nys
         bx, by = B(x, y)
         rot = angle_for(nx, ny)
-        put('D%d' % i, bx - nx * 1.46, by - ny * 1.46, rot)                   # emitting face 0.1 mm inside the edge
-        put('C%d' % (10 + i), bx - nx * 3.7, by - ny * 3.7, rot)
+        led = put('D%d' % i, bx - nx * 1.46, by - ny * 1.46, rot)             # emitting face 0.1 mm inside the edge
+        vdd = [p for p in led.Pads() if p.GetNumber() == '2'][0].GetPosition()
+        vx, vy = pcbnew.ToMM(vdd.x), pcbnew.ToMM(vdd.y)
+        cap = put('C%d' % (10 + i), vx - nx * 2.02, vy - ny * 2.02, rot + 90)
+        p1 = [p for p in cap.Pads() if p.GetNumber() == '1'][0].GetPosition()
+        if math.hypot(p1.x - vdd.x, p1.y - vdd.y) > mm(2.02):                 # pad 1 (supply) must be the near one
+            cap.SetOrientationDegrees(rot - 90)
 
-    # ---- eye: two LEDs on the rim of the hole, firing at each other, capacitor behind each
+    # ---- eye: one reverse-mount LED shining through its own slot to the show face, capacitor beside it
     bx, by = B(ex, ey)
-    for ref, cap, sx in (('D21', 'C31', +1), ('D22', 'C35', -1)):             # sx: side of the hole in BOARD x
-        fx = bx + sx * (EYE_R + 0.1 + 1.36)
-        put(ref, fx, by, angle_for(-sx, 0))
-        put(cap, fx + sx * 2.9, by, 90)
+    put('D21', bx, by, 0)
+    put('C31', bx, by + 3.0, 0)
 
     # ---- edge parts on the belly flat. USB: board edge is 2.66 mm in front of the footprint origin (maker's
     #      drawing: 5.79 from the rear shell slots). The slide switch sits wholly on the board, knob overhanging.
@@ -270,7 +274,7 @@ def main():
     inset = pcbnew.SHAPE_POLY_SET()
     inset.AddOutline(chain(mo.OUTLINE))
     inset.Inflate(-mm(1.0), pcbnew.CORNER_STRATEGY_ROUND_ALL_CORNERS, mm(0.01))
-    for hx, hy, hr in [(ex, ey, EYE_R + 1.0)] + [(x, y, 1.35 + 1.5) for x, y in HOLES.values()]:
+    for hx, hy, hr in [(ex, ey, 4.6)] + [(x, y, 1.35 + 1.5) for x, y in HOLES.values()]:
         hole = pcbnew.SHAPE_POLY_SET()
         hole.AddOutline(chain([(hx + hr * math.cos(2 * math.pi * k / 36), hy + hr * math.sin(2 * math.pi * k / 36)) for k in range(36)]))
         inset.BooleanSubtract(hole)
@@ -289,7 +293,7 @@ def main():
         g.SetWidth(0)
         g.SetNet(netinfo['PAD_' + ref_to_stem[ref]])
         board.Add(g)
-        put(ref, *B(*centre), 0)
+        put(ref, *B(*ANCHOR.get(ref, centre)), 0)
 
     def sp(s_, depth):
         return mo.at(mo.SLIDER, s_, depth)[:2]

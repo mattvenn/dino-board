@@ -1,7 +1,7 @@
 # DinoLight v0.1 (started 2026-11-22), about 212 x 74 mm
 
 Mosasaurus-shaped light-up PCB, a toy for a young child.
-20 side-emitting addressable LEDs along the spine, a two-LED eye, ESP32-S3 module running CircuitPython,
+20 side-emitting addressable LEDs along the spine, a one-LED eye shining through the board, ESP32-S3 module running CircuitPython,
 accelerometer, 12 capacitive touch zones on the bare front face read by an MPR121 touch controller,
 LiPo, USB-C.
 JLCPCB Standard assembly, parts on one side. 2 layers.
@@ -29,6 +29,10 @@ design work and are open to change.
   (`dinolight.kicad_pcb`): draft outline, 146 footprints placed and linked to their symbols, every pad
   on its net, touch electrodes on the back copper on their nets, eye hole. NO TRACKS. Placement is a
   first pass on an outline the owner will replace; it has not had mechanical sign-off. See "Placement draft".
+- 2026-11-22: FIRST ROUTING PASS, NOT FINISHED. See "Routing draft". The LED strip is routed by script
+  and is clean; the autorouter did most of the rest but left 26 signal connections open, and ground is
+  only partly joined up (79 ground items still unconnected after the pours). Not for ordering.
+  Upload set for a second quote: `fab/draft2/`.
 - Git repository set up 2026-11-22 (branch `main`, local only, no remote).
 - Tools: kicad-cli 10.0.8 runs with `KICAD_DOCUMENTS_HOME=<project>/kicad-user` (checked 2026-11-22).
 - Not done: the owner has not read the schematic; routing; mechanical sign-off; JLCPCB's edge rails and tab
@@ -55,9 +59,9 @@ design work and are open to change.
 | The touch slider runs the whole length of the LED run | So a light can follow the finger: touch with no LED above it, or LEDs with no touch below, would spoil that | owner |
 | Slider electrodes interleave with long teeth: 8 segments, each with one central tooth reaching to the next segment's centre between two half-teeth of its neighbour | Atmel AT11805 (in `datasheets/`) calls this spatial interpolation: touch area passes linearly from one electrode to the next, so position can be interpolated. Its figures followed here: tooth sections 3 to 4 mm tall (3 mm used), tips no thinner than 0.25 mm (0.3 used). The note's own long-slider circuits are mutual-capacitance designs for Atmel's PTC, and its resistor-interpolated version does not apply to a self-capacitance chip like the MPR121; the electrode shape does. Segment pitch is 20.7 mm, wider than the 8 mm keys the note's standard slider uses, which is what the long teeth compensate for | mine, open |
 | 470R in series with each touch electrode | Static and noise protection; electrodes are under solder mask only | mine, open |
-| Eye = hole in the board with two side LEDs (D21, D22) on its rim firing inward into a printed plug | JLCPCB returned the reverse-mount SK6812MINI-E as hard to place (quantity 0). Same part as the spine, one fewer extended part type, bigger eye | mine, open |
+| Eye = one reverse-mount SK6812MINI-E (D21) on the parts side, shining through its slot to the show face | The owner wants a real part rather than edge-lighting a hole. JLCPCB's page for C5149201 says "Standard Only, Assembly Difficulty High": a rating, not a refusal, and this board is on Standard already. In the owner's first quote it came back with quantity 0, so it must be selected by hand in the BOM step. Its sister SK6812MINI-EA (C5378731) is rated for both services with no difficulty flag, but JLCPCB's symbol for it numbers the pins differently from its own datasheet, so it is the fallback, not the choice | owner |
 | LEDs powered from the battery only, never from USB 5 V | LED input high threshold is 0.65 x VDD (datasheet): 2.73 V at 4.2 V, fine for 3.3 V logic; 3.25 V at 5 V, not fine. Avoids a level shifter | mine, open |
-| LED rail behind a P-FET switch (Q2, driven by Q3), off by default | 0.6 mA per LED when dark (datasheet), 22 LEDs = 13 mA standing drain | mine, open |
+| LED rail behind a P-FET switch (Q2, driven by Q3), off by default | 0.6 mA per LED when dark (datasheet), 21 LEDs = 13 mA standing drain | mine, open |
 | Slide switch works the regulator's enable pin, not the battery current | The switch is rated 50 mA. Off state is regulator shutdown (0.1 uA typ) with the LED rail off | mine, open |
 | USB plugged in also enables the regulator (D23, then R4 / R5, 200k each) | Plugging in wakes it to show charging and makes it programmable whatever the switch says. 200k, not 1M: with 1M a 10 M leak across the switch (its own after-humidity spec) would reach the enable threshold and the toy would not turn off. Costs about 21 uA while switched on. D23 (1N4148W) stops the battery feeding back onto VBUS through R4, which otherwise leaves VBUS_DET at an undefined level and may stop a USB-C charger from starting | mine, after reviews |
 | Supervisor U6 (TLV803S, 2.93 V, open drain) on the module's EN through R32 1k; EN pull-up R16 100k, C32 100 nF | Below 2.79 V the charger only trickles 21 mA, less than an awake module draws, so a deeply flat cell would never recover with USB always waking the module. U6 keeps the module off until the rail is up, and supplies the 200 ms start-up delay. R32 keeps U6's output within its 5 mA limit when it discharges C32. Adds about 12 uA | mine, after reviews |
@@ -82,8 +86,9 @@ The owner's upload on 2026-11-22 matched every line by C-number.
 
 | Part | C-number | Stock | Class | Lib | Price | KiCad footprint | Unverified |
 |---|---|---|---|---|---|---|---|
-| OPSCO SK6812SIDE-A side LED x22 | C5378721 | 137,956 | Economic and Standard | ext | $0.11 | DinoLight:LED_SK6812SIDE-A_4.0x1.6mm (own; matches JLCPCB's to 0.02 mm) | page says MSL 3, linked datasheet is the -012 variant and says MSL 5a |
+| OPSCO SK6812SIDE-A side LED x20 | C5378721 | 137,956 | Economic and Standard | ext | $0.11 | DinoLight:LED_SK6812SIDE-A_4.0x1.6mm (own; matches JLCPCB's to 0.02 mm) | page says MSL 3, linked datasheet is the -012 variant and says MSL 5a |
 | ESP32-S3-MINI-1-N8 | C2913206 | 14,793 | Standard Only, X-ray | ext | $4.73 | RF_Module:ESP32-S2-MINI-1 (73 of 73 pads match JLCPCB's, 0.03 mm) | antenna keepout |
+| OPSCO SK6812MINI-E reverse-mount LED (eye) | C5149201 | 157,116 | Standard Only, assembly difficulty high | ext | $0.08 | LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount (4 of 4 pads, 0.04 mm) | select it by hand in JLCPCB's BOM step; its pads sit closer to its own slot than the board's edge rule |
 | LIS2DH12TR accelerometer | C110926 | 9,994 | Standard Only | ext | $0.89 | LGA-12_2x2mm_P0.5mm | JLCPCB's footprint service has none for it; pin 1 in the preview |
 | TYPE-C-31-M-12 USB-C, 16 pin | C165948 | 482,527 | Economic and Standard | ext | $0.19 | USB_C_Receptacle_HRO_TYPE-C-31-M-12 (0.12 mm) | board-edge line |
 | MCP73831T-2ACI/OT charger | C424093 | 4,058 | Economic and Standard | ext | $0.79 | SOT-23-5 | |
@@ -103,12 +108,12 @@ The owner's upload on 2026-11-22 matched every line by C-number.
 | 0402 R: 330R, 470R, 1k, 4.7k, 5.1k, 10k, 100k, 200k, 1M | C25104, C25117, C11702, C25900, C25905, C25744, C25741, C25764, C26083 | millions | Economic and Standard | basic | | 0402 | 150k, 470k, 68k in 0402 are extended parts: avoided |
 | 100 nF 0402, 10 uF 0805 | C1525, C15850 | millions | Economic and Standard | basic | | 0402 / 0805 | |
 
-Dropped: SK6812MINI-E C5149201 (reverse mount; JLCPCB would not place it). Avoid: SK6812SIDE-A-RVS
+Avoid: SK6812SIDE-A-RVS
 C2890037 (Standard Only, MSL 5a); LIS3DHTR C15134 (pre-order).
 
 Cost: the owner's quote for the draft on 2026-11-22: EUR 143 before tax and shipping, 5 assembled. Parts were
 $51.78 of that (ESP32 $23.67, side LEDs $9.40, accelerometer $4.44, charger $3.95). The rest is fees.
-13 extended part types now (the eye LED went, the supervisor and touch controller came; the diode and new resistor values
+14 extended part types now (the eye LED, supervisor and touch controller are each one; the diode and new resistor values
 are basic parts). The breakdown between board, setup
 and extended-part fees is not known.
 
@@ -267,7 +272,7 @@ Where things are, seen from the parts side (head on the right):
 | Area | What is there |
 |---|---|
 | Spine edge | D1 to D20, firing off the edge, D1 at the head; each LED's 100 nF 3.7 mm inboard |
-| Head | Eye hole (7 mm, placeholder) with D21 and D22 on its rim; LED rail switch (Q2, Q3) below it; RESET and BOOT buttons in the snout |
+| Head | Eye LED D21 in its slot; LED rail switch (Q2, Q3) below it; RESET and BOOT buttons in the snout |
 | Neck | Module U4, antenna end at the throat edge |
 | Between module and battery | Supervisor, EN parts, the 12 touch resistors, battery and USB sense dividers |
 | Mid body | Battery area 36 x 26 mm, kept free of parts |
@@ -281,7 +286,7 @@ Checks on this draft, 2026-11-22:
 - DRC with schematic parity: no missing or extra footprints and no net conflicts (146 field-difference
   warnings, which are noise); no courtyard overlaps, shorts or clearance errors; 333 unconnected items
   (there are no tracks); no edge-clearance errors now that the connectors sit on a belly flat.
-- `tools/check_leds.py`: 22 LEDs, all facing their edge or the eye hole, chains in order, faces 0.10 mm
+- `tools/check_leds.py`: 20 spine LEDs, all facing their edge, chains in order, faces 0.10 mm
   inside the edge.
 - `jlc_cpl.py`: every footprint matches JLCPCB's within 0.28 mm, including the supervisor and diode.
   Still to look at in the preview: D23 (polarised), U5 (no JLCPCB footprint data), the connectors.
@@ -296,9 +301,52 @@ Known weaknesses, to settle with the new outline:
   stray capacitance and noise to that touch channel. The electrode shapes are placeholders.
 - A mounting hole could not go in the rear flipper without cutting its electrode; all three holes
   (snout, belly behind the battery connector, tail) are placeholders until the case exists.
-- The module's antenna has the throat edge in front of it but parts and copper to both sides; the
-  datasheet's keepout cannot be met on this shape. Bluetooth and Wi-Fi range will be reduced.
-- No room has been reserved for JLCPCB's tabs.
+- Antenna: the module footprint carries its own keep-out (no tracks, vias or parts on either face) from
+  the antenna root to 14 mm beyond its end and 22.7 mm either side. It is clear of parts, the throat
+  edge is in front of it, and the ground pours are kept out of it too. The case is plastic. Expect it to
+  be usable for Wi-Fi and Bluetooth at room range; this is not measured.
+- No room has been reserved for JLCPCB's tabs. The owner asked on 2026-11-22 whether a rectangular
+  board with the outline held by tabs would make it eligible for Economic assembly: no. The service is
+  decided by the parts (the module, the accelerometer and the eye LED are Standard only), not the
+  outline. A frame with our own tabs is still worth drawing for Standard assembly, so the tabs land
+  where we choose and not on the LED edge or the USB socket.
+
+## Routing draft (2026-11-22)
+
+How it is made (all regenerated by script, in this order):
+
+1. `tools/build_board.py`: placement, nets, electrodes.
+2. `tools/route_board.py strip`: the LED strip by rule. Each LED's 100 nF stands radially under its VDD
+   pad. Supply: LED to capacitor to a stub to a 0.6 mm rail on the parts side, 5.6 mm in from the edge.
+   Ground: one via at each LED's ground pad and one at each capacitor, into a ground strip on the show
+   face that runs between the board edge and the touch slider. Data: LED to LED on the parts side.
+   214 tracks, 40 vias, no rule violations.
+3. `tools/route_board.py dsn`, then Freerouting 2.1.0 (GUI on, 40 passes), then `route_board.py ses`.
+   The autorouter gets a copy of the board with ground left out and the show face closed to it wherever
+   there is touch copper, the ground strip or the antenna zone. Signals 0.15 mm, supplies 0.4 mm,
+   clearance 0.15 mm, vias 0.5 / 0.3 mm.
+4. `tools/route_board.py pour`: ground pours on both faces; no pour behind or within 1.5 mm of touch
+   copper, none in the antenna zone.
+
+Where it stands:
+
+- Autorouter: first run (0.2 mm tracks, 0.6 mm vias, parts 0.4 mm apart) left 43 signal connections
+  open; second run (finer rules, parts 0.65 mm apart) left 26. It oscillates rather than converges, and
+  its log shows internal errors, so more passes will not finish it.
+- Open signal connections: mostly the touch lines (pad to resistor to controller), plus single links on
+  +3V3 at U5 and U7, SDA, MPR_REXT, BAT_P1, CHG_STAT, CHG_STAT_5V, CHG_PROG, VBAT_SENSE, EYE_DATA,
+  EYE_DIN, IO3 and ACC_INT1. Several are a few millimetres long: the fine-pitch chips U5 and U7 are
+  boxed in by their neighbours.
+- Ground: 79 items unconnected. The pours are in fragments; it needs stitching vias and probably a
+  ground via beside each ground pad.
+- DRC on this draft: no shorts and no clearance errors. 9 edge-clearance errors (4 are the eye LED's
+  own pads beside its slot, by design of the library footprint; the rest are autorouter tracks too near
+  the slot or the board edge), 17 starved thermals, 21 dangling vias or track ends from the autorouter.
+- Not run: `board_audit.py` (pointless until the connections are complete); no independent layout review.
+
+To finish it: give U5 and U7 clear space and fan their pins out by script (as the LED strip was done),
+route the touch lines by script along the body, re-run the autorouter for what is left, then stitch
+ground and re-check.
 
 ## Outline
 
@@ -317,8 +365,8 @@ Known weaknesses, to settle with the new outline:
 
 - Parts, battery and connectors on the back, under a printed cover; the front stays bare.
 - Translucent ridge along the spine as the light guide. The side LEDs stand 2.0 mm off the board.
-- Eye: a hole (7 mm in the draft, size to be agreed) with a printed translucent plug lit from its rim
-  by two LEDs that stand 2.0 mm off the back of the board.
+- Eye: the LED sits in a 3.4 x 3 mm slot with its lens facing the show face; a printed dome or lens
+  can go over it.
 - `output/dinolight.step` is the board for the case design (most small parts have no 3D model in it).
 - Battery space sketched as 36 x 28 mm (a 500 to 600 mAh cell). Keep that area of the board free of
   parts: a pouch cell must not rest on solder joints.
@@ -347,12 +395,12 @@ Pin map (as in the schematic):
 | 21 | LED_EN: high = LED rail on; pulled down |
 | 41, 42 | I2C SDA, SCL: accelerometer (0x19) and Qwiic |
 | 47 | Spine LED data, 20 LEDs, first LED at the head |
-| 48 | Eye LED data, 2 LEDs |
+| 48 | Eye LED data, 1 LED |
 | 43, 44 | UART0 TX, RX on test points |
 
 - Turn the LED rail off before sleeping. Drive both LED data pins low (or release them) before taking
   LED_EN low: a high data pin back-feeds the dead rail through the LED's input, about 8 mA per line.
-- Cap total LED current at about 0.3 A: the maker allows 70 % with all colours lit, 22 LEDs at full
+- Cap total LED current at about 0.3 A: the maker allows 70 % with all colours lit, 21 LEDs at full
   white would be about 0.8 A, and the fuse holds 1.1 A.
 - After LED_EN goes high the rail takes about 2 ms to rise; wait 5 ms before sending data. Blank the
   LEDs before taking LED_EN low: the rail takes about 60 ms to fall.
@@ -399,6 +447,9 @@ Pin map (as in the schematic):
 | `dinolight.kicad_pcb`, `dinolight.kicad_pro` | the board (draft placement, no tracks) |
 | `output/board_parts_side.png`, `board_show_face.png`, `board_1to1_parts_side.pdf`, `dinolight.step` | renders, a 1:1 print and a STEP of the board |
 | `tools/make_bom.py` | JLCPCB-format BOM from the netlist |
+| `tools/route_board.py` | routing stages: LED strip by rule, autorouter in and out, ground pours |
+| `tools/make_upload.sh` | exports Gerbers, BOM and placement file into `fab/<name>/` |
+| `fab/draft2/` | upload set from the first routing pass, for a quote only |
 | `lib/DinoLight.kicad_sym`, `lib/DinoLight.pretty/` | own symbols (side LED, slide switch, VLED rail) and footprints (side LED, touch anchor) |
 | `datasheets/` | maker datasheets, named by C-number, plus Espressif's English module datasheet |
 | `outline/` | outline generator and its SVG / PNG output |

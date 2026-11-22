@@ -323,7 +323,7 @@ M.note(14, 184,
        'LED_EN         GPIO21, high = LED rail on',
        'SDA, SCL       GPIO41, GPIO42 (accelerometer 0x19, Qwiic)',
        'SPINE_DATA     GPIO47, 20 LEDs, first at the head',
-       'EYE_DATA       GPIO48, 2 LEDs',
+       'EYE_DATA       GPIO48, 1 LED',
        'UART           GPIO43 TX, GPIO44 RX on test points',
        'Turn the LED rail off before sleeping: each LED draws 0.6 mA when dark.',
        'Limit brightness: the LED maker allows 70 % with all three colours lit.')
@@ -362,7 +362,7 @@ c8 = L.part('C8', 104, 66)
 L.wire((104, 62), c8.p(1))
 L.power('GND', *c8.p(2))
 L.note(14, 84, 'LED_EN high turns the LED rail on. It is off by default (R12) and must be off in sleep:',
-       '22 LEDs idle at 0.6 mA each. C10 (gate to drain) and R13 make the rail rise over about 1.5 ms,',
+       '21 LEDs idle at 0.6 mA each. C10 (gate to drain) and R13 make the rail rise over about 1.5 ms,',
        'so switching the LEDs on does not dip the battery and reset the module.',
        'The LEDs run from the battery, never from USB 5 V: their input threshold is 0.65 x VLED,',
        'which 3.3 V logic meets at 4.2 V but not at 5 V.')
@@ -376,22 +376,18 @@ L.glabel('SPINE_DIN', 198, 30)
 L.glabel('EYE_DATA', 172, 58, rot=180)
 r15 = L.part('R15', 184, 58, rot=90, **ACROSS)
 L.wire((172, 58), r15.p(1))
-d21 = L.part('D21', 212, 58, ref=(1, -5.2, 'l'), val=None)
-d22 = L.part('D22', 244, 58, ref=(1, -5.2, 'l'), val=None)
-L.wire(r15.p(2), d21.p(1))
+d21 = L.part('D21', 212, 58, ref=(1, -5.2, 'l'), val=(5, 5.5, 'l'))
+L.wire(r15.p(2), d21.p(2))
 L.name_wire('EYE_DIN', (196, 58), 'up')
 L.part('TP16', 202, 58, ref=(1.5, -2.6, 'l'), val=None)
-L.wire(d21.p(3), d22.p(1))
-L.name_wire('EYE_1', (228, 58), 'down', length=1)
-L.connect(d22, 3)
-for dd in (d21, d22):
-    L.connect(dd, 2)
-    L.connect(dd, 4)
-for ref, x in (('C31', 268), ('C35', 280), ('C9', 298)):
+L.connect(d21, 4)
+L.connect(d21, 3)
+L.connect(d21, 1)
+for ref, x in (('C31', 250), ('C9', 298)):
     L.connect_all(L.part(ref, x, 58))
 L.hint('C9: at the tail end of the rail', 290, 68)
-L.note(156, 80, 'The eye is a hole in the board with D21 and D22 on its rim firing inward into a printed',
-       'translucent plug. Same part as the spine LEDs. R14, R15 damp the data edges.')
+L.note(156, 80, 'The eye is one reverse-mount LED (SK6812MINI-E) on the parts side, shining through a slot in the',
+       'board to the show face. Pins 1 GND, 2 DIN, 3 VDD, 4 DOUT. R14, R15 damp the data edges.')
 
 L.frame(12, 104, 318, 197, 'Spine: 20 side-emitting LEDs, D1 at the head, each with 100 nF beside it')
 X0, PITCH, ROWS = 36, 28, (132, 178)
