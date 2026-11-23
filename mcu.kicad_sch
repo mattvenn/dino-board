@@ -12876,7 +12876,7 @@
 		)
 		(uuid "3649fdf7-cdef-5a2f-a43d-fd1e355890fa")
 	)
-	(text "Touch          MPR121 at 0x5C: ELE0-7 spine 1-8 (head to tail), ELE8 snout,\n               9 tail, 10 rear flipper, 11 front flipper. TOUCH_IRQ on GPIO1\nVBAT_SENSE     GPIO10, battery / 2\nACC_INT1, 2    GPIO15, GPIO16\nCHG_STAT       GPIO17, high = charge complete\nVBUS_DET       GPIO18, high = USB present\nLED_EN         GPIO21, high = LED rail on\nSDA, SCL       GPIO41, GPIO42 (accelerometer 0x19, Qwiic)\nSPINE_DATA     GPIO11, 20 LEDs, first at the head\nBUZZ           GPIO4, high = buzzer on (4 kHz square wave)\nEYE_DATA       GPIO48, 1 LED\nUART           GPIO43 TX, GPIO44 RX on test points\nTurn the LED rail off before sleeping: each LED draws 0.6 mA when dark.\nLimit brightness: the LED maker allows 70 % with all three colours lit."
+	(text "Touch          MPR121 at 0x5C: ELE0-7 spine 1-8 (head to tail), ELE8 snout,\n               9 tail, 10 rear flipper, 11 front flipper. TOUCH_IRQ on GPIO1\nVBAT_SENSE     GPIO10, battery / 2\nACC_INT1, 2    GPIO15, GPIO16\nCHG_STAT       GPIO17, high = charge complete\nVBUS_DET       GPIO18, high = USB present\nLED_EN         GPIO21, high = LED rail on\nSDA, SCL       GPIO41, GPIO42 (accelerometer 0x19, Qwiic)\nSPINE_DATA     GPIO11, 18 LEDs, first at the head\nBUZZ           GPIO4, high = buzzer on (4 kHz square wave)\nEYE_DATA       GPIO48, 1 LED\nUART           GPIO43 TX, GPIO44 RX on test points\nTurn the LED rail off before sleeping: each LED draws 0.6 mA when dark.\nLimit brightness: the LED maker allows 70 % with all three colours lit."
 		(exclude_from_sim no)
 		(at 17.78 233.68 0)
 		(effects
@@ -12885,6 +12885,6 @@
 			)
 			(justify left top)
 		)
-		(uuid "d54ddc0b-748f-5176-aca6-86dcf96f0dc1")
+		(uuid "f9f9fbe2-0521-5fe5-8d6b-cd9a402c114f")
 	)
 )

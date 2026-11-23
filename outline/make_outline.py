@@ -5,7 +5,7 @@ The outline is a closed run of cubic Bezier segments, P, clockwise from the snou
 the shape; everything that sits on an edge is computed from it:
 
     OUTLINE   dense closed polyline of the board edge
-    SPINE     the part of the top edge the LEDs run along (back of the skull to the tail base), head first
+    SPINE     the part of the top edge the LEDs run along (back of the skull to two LED places short of the tail base), head first
     SLIDER    the part of the top edge the touch slider follows: the same run, so touch covers every LED
     FLAT      the straight stretch of belly for the USB socket and the slide switch: (x0, y, x1, y)
     EYE       centre of the eye hole
@@ -17,7 +17,8 @@ it is in the git history of this file.
 """
 import math
 
-N_LED = 20
+N_LED = 18                 # fitted. The back has room for N_LED_ROOM at this pitch; the last two, at the tail end, were
+N_LED_ROOM = 20            # taken off on 2026-11-23: the case stops there and the tail sticks out of it
 
 # (p0, c1, c2, p1) for each segment
 P = [
@@ -64,8 +65,7 @@ def polyline(segs, n):
 
 
 OUTLINE = polyline(P, 60)[:-1]
-SPINE = polyline([P[i] for i in SPINE_SEGS], 300)
-SLIDER = SPINE
+SPINE_FULL = polyline([P[i] for i in SPINE_SEGS], 300)      # the whole back, skull to tail base
 FLAT = (P[FLAT_SEG][3][0], P[FLAT_SEG][3][1], P[FLAT_SEG][0][0], P[FLAT_SEG][0][1])
 
 
@@ -87,9 +87,28 @@ def at(pts, s, depth=0.0):
         d += L
 
 
-spine_len = slider_len = length(SPINE)
 LED_MARGIN = 3.0
-leds = [at(SPINE, LED_MARGIN + (spine_len - 2 * LED_MARGIN) * i / (N_LED - 1)) for i in range(N_LED)]
+LED_PITCH = (length(SPINE_FULL) - 2 * LED_MARGIN) / (N_LED_ROOM - 1)
+spine_len = slider_len = 2 * LED_MARGIN + LED_PITCH * (N_LED - 1)
+
+
+def _cut(pts, s):
+    """the polyline's first s mm"""
+    out, d = [pts[0]], 0.0
+    for a, b in zip(pts, pts[1:]):
+        L = math.dist(a, b)
+        if d + L >= s:
+            f = (s - d) / L
+            out.append((a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1])))
+            return out
+        out.append(b)
+        d += L
+    return out
+
+
+SPINE = _cut(SPINE_FULL, spine_len)        # the run the LEDs, their ground strip and the touch slider all follow
+SLIDER = SPINE
+leds = [at(SPINE, LED_MARGIN + LED_PITCH * i) for i in range(N_LED)]
 
 
 def inside(x, y, poly=None):

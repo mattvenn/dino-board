@@ -2850,8 +2850,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "de7ddaa7-2646-53fd-b938-16ceb47c84e5")
-		(property "Reference" "#PWR156"
+		(uuid "ea012877-cbdc-5db2-8825-4d674b240636")
+		(property "Reference" "#PWR148"
 			(at 58.42 66.04 90)
 			(hide yes)
 			(show_name no)
@@ -2907,12 +2907,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "28046196-efac-5c9e-b930-447faf9e8af8")
+			(uuid "7e653879-04b3-523a-94c2-81e9b6c16e5b")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR156")
+					(reference "#PWR148")
 					(unit 1)
 				)
 			)
@@ -2928,8 +2928,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d18ad362-35cd-55f5-878b-eedb9c9f3719")
-		(property "Reference" "#PWR157"
+		(uuid "7961d5e0-822f-53da-87fe-a2b8d4421fea")
+		(property "Reference" "#PWR149"
 			(at 58.42 68.58 90)
 			(hide yes)
 			(show_name no)
@@ -2985,12 +2985,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "ab78cf7c-9bfe-55ea-8fb5-67e6fac886d0")
+			(uuid "380d517c-00c3-5ad5-9f3c-365efe206a43")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR157")
+					(reference "#PWR149")
 					(unit 1)
 				)
 			)
@@ -3006,8 +3006,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7f29a5ea-fb95-5038-bfcf-5a03449c23c8")
-		(property "Reference" "#PWR158"
+		(uuid "01838a30-c1d7-5c80-a9f3-b7e8dc4606b5")
+		(property "Reference" "#PWR150"
 			(at 58.42 71.12 90)
 			(hide yes)
 			(show_name no)
@@ -3063,12 +3063,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "ace3e34a-2529-5bd0-ae12-0b88a10d2818")
+			(uuid "f6161c48-e71d-576f-8d41-83e51e2d59a1")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR158")
+					(reference "#PWR150")
 					(unit 1)
 				)
 			)
@@ -3106,8 +3106,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "26e67a5b-d14c-5c23-b2b3-24ae287da215")
-		(property "Reference" "#PWR159"
+		(uuid "83af6d97-6eff-5844-8636-ed6513c675af")
+		(property "Reference" "#PWR151"
 			(at 73.66 58.42 0)
 			(hide yes)
 			(show_name no)
@@ -3162,12 +3162,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d542b041-2b0c-5e4f-9999-6c6b497dff1f")
+			(uuid "16875dde-c5e2-554b-ae19-711e2c728182")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR159")
+					(reference "#PWR151")
 					(unit 1)
 				)
 			)
@@ -3183,8 +3183,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "b48242ce-ef64-5707-9242-fa2ad40d2c11")
-		(property "Reference" "#PWR160"
+		(uuid "3afa89d6-80d4-52c9-b939-0dc2d480eee0")
+		(property "Reference" "#PWR152"
 			(at 73.66 88.9 0)
 			(hide yes)
 			(show_name no)
@@ -3240,12 +3240,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "29f0cc04-6736-5f1b-9870-ea5040cc2f4c")
+			(uuid "c90bbdb7-ff8a-57f9-958c-0e123fb40b57")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR160")
+					(reference "#PWR152")
 					(unit 1)
 				)
 			)
@@ -3261,8 +3261,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c6c68bb6-1eb5-5801-b275-5e753b48559e")
-		(property "Reference" "#PWR161"
+		(uuid "ee85dcc9-220d-531c-8c7b-4fb3c8a1e221")
+		(property "Reference" "#PWR153"
 			(at 73.66 88.9 0)
 			(hide yes)
 			(show_name no)
@@ -3318,12 +3318,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "9ffc4cf3-4817-54f1-956e-8084eda4c866")
+			(uuid "90040f2e-78ba-56c7-890c-296ab5762dd9")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR161")
+					(reference "#PWR153")
 					(unit 1)
 				)
 			)
@@ -3339,8 +3339,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "467f816f-618d-5a0a-b1cb-6b811d476f0f")
-		(property "Reference" "#PWR162"
+		(uuid "5a23fbe9-0491-583a-92c8-16d3b8b8a949")
+		(property "Reference" "#PWR154"
 			(at 76.2 58.42 0)
 			(hide yes)
 			(show_name no)
@@ -3395,12 +3395,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "50584031-1d29-5c71-a0b8-c3bd6b4cfd30")
+			(uuid "13c0c7ef-c28a-56b0-a657-0922079fb896")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR162")
+					(reference "#PWR154")
 					(unit 1)
 				)
 			)
@@ -3438,8 +3438,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a27075db-ac2f-5414-9f3c-e19d9f964b56")
-		(property "Reference" "#PWR163"
+		(uuid "6a89621d-3764-57a1-990e-8caa34d65393")
+		(property "Reference" "#PWR155"
 			(at 58.42 81.28 90)
 			(hide yes)
 			(show_name no)
@@ -3494,12 +3494,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "f4687bd7-9043-5720-92c0-9c94d295821f")
+			(uuid "49bd0758-b88b-5473-ad7c-45b1484e0628")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR163")
+					(reference "#PWR155")
 					(unit 1)
 				)
 			)
@@ -3651,8 +3651,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e96ed044-e707-54db-b798-9b08b030e254")
-		(property "Reference" "#PWR164"
+		(uuid "de7ddaa7-2646-53fd-b938-16ceb47c84e5")
+		(property "Reference" "#PWR156"
 			(at 111.76 36.83 0)
 			(hide yes)
 			(show_name no)
@@ -3707,12 +3707,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "059eb039-0d58-54a8-b7ee-954fdbb57c64")
+			(uuid "28046196-efac-5c9e-b930-447faf9e8af8")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR164")
+					(reference "#PWR156")
 					(unit 1)
 				)
 			)
@@ -3728,8 +3728,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "395b45e9-6b3b-5d85-b95c-3487873e320f")
-		(property "Reference" "#PWR165"
+		(uuid "d18ad362-35cd-55f5-878b-eedb9c9f3719")
+		(property "Reference" "#PWR157"
 			(at 111.76 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -3785,12 +3785,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "53d5b079-420d-553b-8cb3-37e0069cb0c3")
+			(uuid "ab78cf7c-9bfe-55ea-8fb5-67e6fac886d0")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR165")
+					(reference "#PWR157")
 					(unit 1)
 				)
 			)
@@ -3898,8 +3898,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "970de9d0-7962-5a30-80a2-703a986710c9")
-		(property "Reference" "#PWR166"
+		(uuid "7f29a5ea-fb95-5038-bfcf-5a03449c23c8")
+		(property "Reference" "#PWR158"
 			(at 129.54 36.83 0)
 			(hide yes)
 			(show_name no)
@@ -3954,12 +3954,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "8e94b3da-2f29-558f-a78e-8f00c2b1018e")
+			(uuid "ace3e34a-2529-5bd0-ae12-0b88a10d2818")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR166")
+					(reference "#PWR158")
 					(unit 1)
 				)
 			)
@@ -3975,8 +3975,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c4b5a08b-740d-537d-8e22-8ff3809b2237")
-		(property "Reference" "#PWR167"
+		(uuid "26e67a5b-d14c-5c23-b2b3-24ae287da215")
+		(property "Reference" "#PWR159"
 			(at 129.54 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -4032,12 +4032,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "600f88f7-6798-5e1d-b69f-3ab4f2ab1e2f")
+			(uuid "d542b041-2b0c-5e4f-9999-6c6b497dff1f")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR167")
+					(reference "#PWR159")
 					(unit 1)
 				)
 			)
@@ -4193,8 +4193,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "429632fa-894c-5e14-89ff-2a7959fc4c4f")
-		(property "Reference" "#PWR168"
+		(uuid "b48242ce-ef64-5707-9242-fa2ad40d2c11")
+		(property "Reference" "#PWR160"
 			(at 195.58 63.5 90)
 			(hide yes)
 			(show_name no)
@@ -4249,12 +4249,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "89cf6d52-51bd-5e4c-87c3-f224d65b706c")
+			(uuid "29f0cc04-6736-5f1b-9870-ea5040cc2f4c")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR168")
+					(reference "#PWR160")
 					(unit 1)
 				)
 			)
@@ -4292,8 +4292,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "07c277ff-faaf-5cf3-8e25-d2df61b85406")
-		(property "Reference" "#PWR169"
+		(uuid "c6c68bb6-1eb5-5801-b275-5e753b48559e")
+		(property "Reference" "#PWR161"
 			(at 195.58 68.58 90)
 			(hide yes)
 			(show_name no)
@@ -4349,12 +4349,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "93a4be64-6c64-5a1b-b23d-56f90a088f8e")
+			(uuid "9ffc4cf3-4817-54f1-956e-8084eda4c866")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR169")
+					(reference "#PWR161")
 					(unit 1)
 				)
 			)
@@ -4370,8 +4370,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e474ec71-ce15-5706-bf85-d41026a4ab4a")
-		(property "Reference" "#PWR170"
+		(uuid "467f816f-618d-5a0a-b1cb-6b811d476f0f")
+		(property "Reference" "#PWR162"
 			(at 195.58 71.12 90)
 			(hide yes)
 			(show_name no)
@@ -4427,12 +4427,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "fced18e5-b55d-5d0c-8242-e8b1870bd44f")
+			(uuid "50584031-1d29-5c71-a0b8-c3bd6b4cfd30")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR170")
+					(reference "#PWR162")
 					(unit 1)
 				)
 			)
@@ -4584,8 +4584,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "0ab93a0b-37eb-52ff-9b2c-f6eae5ececd6")
-		(property "Reference" "#PWR171"
+		(uuid "a27075db-ac2f-5414-9f3c-e19d9f964b56")
+		(property "Reference" "#PWR163"
 			(at 241.3 39.37 0)
 			(hide yes)
 			(show_name no)
@@ -4640,12 +4640,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "b9786bd4-e66e-5d26-8a38-b3d9f66fb73b")
+			(uuid "f4687bd7-9043-5720-92c0-9c94d295821f")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR171")
+					(reference "#PWR163")
 					(unit 1)
 				)
 			)
@@ -4661,8 +4661,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "b7831325-4521-581e-bcb2-08cfc7b71eb8")
-		(property "Reference" "#PWR172"
+		(uuid "e96ed044-e707-54db-b798-9b08b030e254")
+		(property "Reference" "#PWR164"
 			(at 241.3 46.99 0)
 			(hide yes)
 			(show_name no)
@@ -4718,12 +4718,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "eaf56fe5-e353-5242-9400-1378c1d9de34")
+			(uuid "059eb039-0d58-54a8-b7ee-954fdbb57c64")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR172")
+					(reference "#PWR164")
 					(unit 1)
 				)
 			)
@@ -4853,8 +4853,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "913c8a4f-edb3-5d7f-a39f-9cae947ecd2f")
-		(property "Reference" "#PWR173"
+		(uuid "395b45e9-6b3b-5d85-b95c-3487873e320f")
+		(property "Reference" "#PWR165"
 			(at 259.08 46.99 0)
 			(hide yes)
 			(show_name no)
@@ -4910,12 +4910,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "39b17cf5-81cc-5699-9728-2b2ba79a4430")
+			(uuid "53d5b079-420d-553b-8cb3-37e0069cb0c3")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR173")
+					(reference "#PWR165")
 					(unit 1)
 				)
 			)
@@ -5083,8 +5083,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "04813fd7-d98b-561b-a099-8b739e20c10c")
-		(property "Reference" "#PWR174"
+		(uuid "970de9d0-7962-5a30-80a2-703a986710c9")
+		(property "Reference" "#PWR166"
 			(at 325.12 63.5 90)
 			(hide yes)
 			(show_name no)
@@ -5139,12 +5139,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "01517719-3b0f-5a21-961c-1c5be446ac91")
+			(uuid "8e94b3da-2f29-558f-a78e-8f00c2b1018e")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR174")
+					(reference "#PWR166")
 					(unit 1)
 				)
 			)
@@ -5160,8 +5160,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "8a04f74d-bfae-5be4-a195-1b19889d76ea")
-		(property "Reference" "#PWR175"
+		(uuid "c4b5a08b-740d-537d-8e22-8ff3809b2237")
+		(property "Reference" "#PWR167"
 			(at 325.12 66.04 90)
 			(hide yes)
 			(show_name no)
@@ -5216,12 +5216,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a9548579-4f2c-53b9-8ae7-2b0fd04d40f8")
+			(uuid "600f88f7-6798-5e1d-b69f-3ab4f2ab1e2f")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR175")
+					(reference "#PWR167")
 					(unit 1)
 				)
 			)
@@ -5237,8 +5237,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a23d025b-c0a7-5466-a3cf-3266b779270f")
-		(property "Reference" "#PWR176"
+		(uuid "429632fa-894c-5e14-89ff-2a7959fc4c4f")
+		(property "Reference" "#PWR168"
 			(at 325.12 68.58 90)
 			(hide yes)
 			(show_name no)
@@ -5293,12 +5293,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d34cd3e6-dcd5-53ee-86ca-d661edb75516")
+			(uuid "89cf6d52-51bd-5e4c-87c3-f224d65b706c")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR176")
+					(reference "#PWR168")
 					(unit 1)
 				)
 			)
@@ -5314,8 +5314,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "47436d3a-3314-5a4c-846a-7770ece21df6")
-		(property "Reference" "#PWR177"
+		(uuid "07c277ff-faaf-5cf3-8e25-d2df61b85406")
+		(property "Reference" "#PWR169"
 			(at 325.12 71.12 90)
 			(hide yes)
 			(show_name no)
@@ -5371,12 +5371,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "aad2712a-21aa-5524-acdf-8d71e264b413")
+			(uuid "93a4be64-6c64-5a1b-b23d-56f90a088f8e")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR177")
+					(reference "#PWR169")
 					(unit 1)
 				)
 			)
@@ -5392,8 +5392,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "6951937e-8767-586f-8664-43087a8c2dbd")
-		(property "Reference" "#PWR178"
+		(uuid "e474ec71-ce15-5706-bf85-d41026a4ab4a")
+		(property "Reference" "#PWR170"
 			(at 325.12 73.66 90)
 			(hide yes)
 			(show_name no)
@@ -5449,12 +5449,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "daeaa5ae-9b17-5dc6-a0b1-5a9a1f6de72c")
+			(uuid "fced18e5-b55d-5d0c-8242-e8b1870bd44f")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR178")
+					(reference "#PWR170")
 					(unit 1)
 				)
 			)
@@ -5470,8 +5470,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "433e347a-db93-5452-a118-d26474516773")
-		(property "Reference" "#PWR179"
+		(uuid "0ab93a0b-37eb-52ff-9b2c-f6eae5ececd6")
+		(property "Reference" "#PWR171"
 			(at 325.12 76.2 90)
 			(hide yes)
 			(show_name no)
@@ -5527,12 +5527,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "0c812a8f-35a1-5efb-aaf9-9566032777f8")
+			(uuid "b9786bd4-e66e-5d26-8a38-b3d9f66fb73b")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR179")
+					(reference "#PWR171")
 					(unit 1)
 				)
 			)
@@ -5548,8 +5548,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "1bca4098-634d-5630-a629-65c8f71cea41")
-		(property "Reference" "#PWR180"
+		(uuid "b7831325-4521-581e-bcb2-08cfc7b71eb8")
+		(property "Reference" "#PWR172"
 			(at 325.12 78.74 90)
 			(hide yes)
 			(show_name no)
@@ -5605,12 +5605,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "18405a94-8738-5e08-bbfb-43da7a1224f2")
+			(uuid "eaf56fe5-e353-5242-9400-1378c1d9de34")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR180")
+					(reference "#PWR172")
 					(unit 1)
 				)
 			)
@@ -5670,8 +5670,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "8c883cc3-05be-5de2-a8b9-fa80ebcf2d50")
-		(property "Reference" "#PWR181"
+		(uuid "913c8a4f-edb3-5d7f-a39f-9cae947ecd2f")
+		(property "Reference" "#PWR173"
 			(at 345.44 68.58 90)
 			(hide yes)
 			(show_name no)
@@ -5727,12 +5727,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "032ba2de-98f7-50ce-b142-8ee7df3e35f8")
+			(uuid "39b17cf5-81cc-5699-9728-2b2ba79a4430")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR181")
+					(reference "#PWR173")
 					(unit 1)
 				)
 			)
@@ -5840,8 +5840,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "da126b75-84da-58c7-b463-cba953835123")
-		(property "Reference" "#PWR182"
+		(uuid "04813fd7-d98b-561b-a099-8b739e20c10c")
+		(property "Reference" "#PWR174"
 			(at 375.92 36.83 0)
 			(hide yes)
 			(show_name no)
@@ -5896,12 +5896,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "07f46e00-f48b-5526-8831-3ad3c2997f41")
+			(uuid "01517719-3b0f-5a21-961c-1c5be446ac91")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR182")
+					(reference "#PWR174")
 					(unit 1)
 				)
 			)
@@ -5917,8 +5917,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e450ed17-52be-5942-a7a8-1a674db489fe")
-		(property "Reference" "#PWR183"
+		(uuid "8a04f74d-bfae-5be4-a195-1b19889d76ea")
+		(property "Reference" "#PWR175"
 			(at 375.92 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -5974,12 +5974,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "ff558f58-e088-5651-a5a4-6e5aab12435d")
+			(uuid "a9548579-4f2c-53b9-8ae7-2b0fd04d40f8")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR183")
+					(reference "#PWR175")
 					(unit 1)
 				)
 			)
@@ -6087,8 +6087,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "8cbde2c4-cbf6-5fad-bd9a-8d6b6c969429")
-		(property "Reference" "#PWR184"
+		(uuid "a23d025b-c0a7-5466-a3cf-3266b779270f")
+		(property "Reference" "#PWR176"
 			(at 393.7 36.83 0)
 			(hide yes)
 			(show_name no)
@@ -6143,12 +6143,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "0286a350-65c5-5c2e-ba74-c6ef39f91acf")
+			(uuid "d34cd3e6-dcd5-53ee-86ca-d661edb75516")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR184")
+					(reference "#PWR176")
 					(unit 1)
 				)
 			)
@@ -6164,8 +6164,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7d627857-d500-5003-95ca-4028e227f495")
-		(property "Reference" "#PWR185"
+		(uuid "47436d3a-3314-5a4c-846a-7770ece21df6")
+		(property "Reference" "#PWR177"
 			(at 393.7 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -6221,12 +6221,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "071c5091-2625-5035-935e-b12a59253716")
+			(uuid "aad2712a-21aa-5524-acdf-8d71e264b413")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR185")
+					(reference "#PWR177")
 					(unit 1)
 				)
 			)
@@ -6420,8 +6420,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "fa0b4956-4b7b-5672-9fa1-f938280780fa")
-		(property "Reference" "#PWR186"
+		(uuid "6951937e-8767-586f-8664-43087a8c2dbd")
+		(property "Reference" "#PWR178"
 			(at 76.2 170.18 0)
 			(hide yes)
 			(show_name no)
@@ -6476,12 +6476,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "815c7638-5ae9-51cd-b13e-bd2b4c4c8157")
+			(uuid "daeaa5ae-9b17-5dc6-a0b1-5a9a1f6de72c")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR186")
+					(reference "#PWR178")
 					(unit 1)
 				)
 			)
@@ -6497,8 +6497,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "1ef5454f-14f7-5edc-9692-c9e87eaccba9")
-		(property "Reference" "#PWR187"
+		(uuid "433e347a-db93-5452-a118-d26474516773")
+		(property "Reference" "#PWR179"
 			(at 76.2 185.42 0)
 			(hide yes)
 			(show_name no)
@@ -6554,12 +6554,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "5b6f7731-bdad-59f5-8d26-a08a8e5db061")
+			(uuid "0c812a8f-35a1-5efb-aaf9-9566032777f8")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR187")
+					(reference "#PWR179")
 					(unit 1)
 				)
 			)
@@ -6667,8 +6667,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "5c7fea9c-9f16-5ff7-945c-e0e76e1f3f90")
-		(property "Reference" "#PWR188"
+		(uuid "1bca4098-634d-5630-a629-65c8f71cea41")
+		(property "Reference" "#PWR180"
 			(at 121.92 148.59 0)
 			(hide yes)
 			(show_name no)
@@ -6723,12 +6723,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "1b62c726-ebb9-5982-9732-62ffc92393e4")
+			(uuid "18405a94-8738-5e08-bbfb-43da7a1224f2")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR188")
+					(reference "#PWR180")
 					(unit 1)
 				)
 			)
@@ -6744,8 +6744,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "5f6f2e75-dad6-5e48-987a-49ea3d217635")
-		(property "Reference" "#PWR189"
+		(uuid "8c883cc3-05be-5de2-a8b9-fa80ebcf2d50")
+		(property "Reference" "#PWR181"
 			(at 121.92 156.21 0)
 			(hide yes)
 			(show_name no)
@@ -6801,12 +6801,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "2644f538-cfad-5db2-86f6-f0be0ea446a3")
+			(uuid "032ba2de-98f7-50ce-b142-8ee7df3e35f8")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR189")
+					(reference "#PWR181")
 					(unit 1)
 				)
 			)
@@ -6962,8 +6962,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "fe664017-5622-5be3-8d9a-2e919eb568f1")
-		(property "Reference" "#PWR190"
+		(uuid "da126b75-84da-58c7-b463-cba953835123")
+		(property "Reference" "#PWR182"
 			(at 205.74 167.64 0)
 			(hide yes)
 			(show_name no)
@@ -7018,12 +7018,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "6c19db5b-2ffa-5da4-ad31-977f3573d051")
+			(uuid "07f46e00-f48b-5526-8831-3ad3c2997f41")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR190")
+					(reference "#PWR182")
 					(unit 1)
 				)
 			)
@@ -7039,8 +7039,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e320d435-ba5b-5cce-9545-83880dcd25dc")
-		(property "Reference" "#PWR191"
+		(uuid "e450ed17-52be-5942-a7a8-1a674db489fe")
+		(property "Reference" "#PWR183"
 			(at 205.74 187.96 0)
 			(hide yes)
 			(show_name no)
@@ -7096,12 +7096,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "2f4cba6f-58ef-59ea-b7c6-bc112cc5636c")
+			(uuid "ff558f58-e088-5651-a5a4-6e5aab12435d")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR191")
+					(reference "#PWR183")
 					(unit 1)
 				)
 			)
@@ -7257,8 +7257,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d6251f4a-9c13-5bb8-9e58-6db7ce887f8a")
-		(property "Reference" "#PWR192"
+		(uuid "8cbde2c4-cbf6-5fad-bd9a-8d6b6c969429")
+		(property "Reference" "#PWR184"
 			(at 254 148.59 0)
 			(hide yes)
 			(show_name no)
@@ -7313,12 +7313,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "9d7a6406-241a-563b-9acf-74c31ade6c2a")
+			(uuid "0286a350-65c5-5c2e-ba74-c6ef39f91acf")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR192")
+					(reference "#PWR184")
 					(unit 1)
 				)
 			)
@@ -7334,8 +7334,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "146619ac-038c-525e-b5a0-62b7980cf45f")
-		(property "Reference" "#PWR193"
+		(uuid "7d627857-d500-5003-95ca-4028e227f495")
+		(property "Reference" "#PWR185"
 			(at 254 156.21 0)
 			(hide yes)
 			(show_name no)
@@ -7391,12 +7391,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "b7e4906c-8eac-5cd6-aa75-5911f84b9268")
+			(uuid "071c5091-2625-5035-935e-b12a59253716")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR193")
+					(reference "#PWR185")
 					(unit 1)
 				)
 			)
@@ -7540,8 +7540,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "51c009ae-0e07-51f0-b88f-ca7333d995ce")
-		(property "Reference" "#PWR194"
+		(uuid "fa0b4956-4b7b-5672-9fa1-f938280780fa")
+		(property "Reference" "#PWR186"
 			(at 289.56 153.67 0)
 			(hide yes)
 			(show_name no)
@@ -7596,12 +7596,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "e46ac2b2-30cc-5b9a-a2c3-f076def6259b")
+			(uuid "815c7638-5ae9-51cd-b13e-bd2b4c4c8157")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR194")
+					(reference "#PWR186")
 					(unit 1)
 				)
 			)
@@ -7731,8 +7731,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c640d3f3-efb1-5106-9f84-a01a8f156426")
-		(property "Reference" "#PWR195"
+		(uuid "1ef5454f-14f7-5edc-9692-c9e87eaccba9")
+		(property "Reference" "#PWR187"
 			(at 309.88 153.67 0)
 			(hide yes)
 			(show_name no)
@@ -7787,12 +7787,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "cf045672-6ba8-59c9-8d8f-bf96e063a7b4")
+			(uuid "5b6f7731-bdad-59f5-8d26-a08a8e5db061")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR195")
+					(reference "#PWR187")
 					(unit 1)
 				)
 			)
@@ -8217,8 +8217,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "abdb8780-0ac0-536b-87f3-243da60b74bd")
-		(property "Reference" "#PWR196"
+		(uuid "5c7fea9c-9f16-5ff7-945c-e0e76e1f3f90")
+		(property "Reference" "#PWR188"
 			(at 383.54 195.58 0)
 			(hide yes)
 			(show_name no)
@@ -8274,12 +8274,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "975a2f0a-b53e-5592-a9a2-d67b4c66c33d")
+			(uuid "1b62c726-ebb9-5982-9732-62ffc92393e4")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR196")
+					(reference "#PWR188")
 					(unit 1)
 				)
 			)
@@ -8431,8 +8431,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "4c947c98-33db-5bde-a308-7fc092d1a2a8")
-		(property "Reference" "#PWR197"
+		(uuid "5f6f2e75-dad6-5e48-987a-49ea3d217635")
+		(property "Reference" "#PWR189"
 			(at 355.6 201.93 0)
 			(hide yes)
 			(show_name no)
@@ -8488,12 +8488,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "81760a81-785a-5f63-b873-a181e2fd4616")
+			(uuid "2644f538-cfad-5db2-86f6-f0be0ea446a3")
 		)
 		(instances
 			(project "dinolight"
 				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/d75e7456-5f54-5a1f-a486-956a571df548"
-					(reference "#PWR197")
+					(reference "#PWR189")
 					(unit 1)
 				)
 			)

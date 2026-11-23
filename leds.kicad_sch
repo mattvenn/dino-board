@@ -431,6 +431,289 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "DinoLight:SK6812MINI-012"
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "D"
+				(at 5.08 5.715 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify right bottom)
+				)
+			)
+			(property "Value" "SK6812MINI-012"
+				(at 1.27 -5.715 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Footprint" ""
+				(at 1.27 -7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Datasheet" ""
+				(at 2.54 -9.525 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Description" "RGB LED with integrated controller"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "RGB LED NeoPixel Mini addressable"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "SK6812MINI-012_0_0"
+				(text "RGB"
+					(at 2.286 -4.191 0)
+					(effects
+						(font
+							(size 0.762 0.762)
+						)
+					)
+				)
+			)
+			(symbol "SK6812MINI-012_0_1"
+				(polyline
+					(pts
+						(xy 1.27 -2.54)
+						(xy 1.778 -2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 -3.556)
+						(xy 1.778 -3.556)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.286 -1.524)
+						(xy 1.27 -2.54)
+						(xy 1.27 -2.032)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.286 -2.54)
+						(xy 1.27 -3.556)
+						(xy 1.27 -3.048)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.683 -1.016)
+						(xy 3.683 -3.556)
+						(xy 3.683 -4.064)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 4.699 -1.524)
+						(xy 2.667 -1.524)
+						(xy 3.683 -3.556)
+						(xy 4.699 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 4.699 -3.556)
+						(xy 2.667 -3.556)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start 5.08 5.08)
+					(end -5.08 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "SK6812MINI-012_1_1"
+				(pin output line
+					(at 7.62 0 180)
+					(length 2.54)
+					(name "DOUT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 -7.62 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -7.62 0 0)
+					(length 2.54)
+					(name "DIN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 7.62 270)
+					(length 2.54)
+					(name "VDD"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "DinoLight:SK6812SIDE-A"
 			(pin_names
 				(offset 0.254)
@@ -846,289 +1129,6 @@
 						)
 					)
 					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "LED:SK6812MINI-E"
-			(pin_names
-				(offset 0.254)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "D"
-				(at 5.08 5.715 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify right bottom)
-				)
-			)
-			(property "Value" "SK6812MINI-E"
-				(at 1.27 -5.715 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Footprint" "LED_SMD:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount"
-				(at 1.27 -7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Datasheet" "https://www.lcsc.com/datasheet/C5149201.pdf"
-				(at 2.54 -9.525 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Description" "RGB LED with integrated controller"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "RGB LED NeoPixel addressable"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_fp_filters" "LED?SK6812MINI?E?3.2x2.8mm?P1.5mm*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "SK6812MINI-E_0_0"
-				(text "RGB"
-					(at 2.286 -4.191 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-			)
-			(symbol "SK6812MINI-E_0_1"
-				(polyline
-					(pts
-						(xy 1.27 -2.54)
-						(xy 1.778 -2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 -3.556)
-						(xy 1.778 -3.556)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.286 -1.524)
-						(xy 1.27 -2.54)
-						(xy 1.27 -2.032)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.286 -2.54)
-						(xy 1.27 -3.556)
-						(xy 1.27 -3.048)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 3.683 -1.016)
-						(xy 3.683 -3.556)
-						(xy 3.683 -4.064)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 4.699 -1.524)
-						(xy 2.667 -1.524)
-						(xy 3.683 -3.556)
-						(xy 4.699 -1.524)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 4.699 -3.556)
-						(xy 2.667 -3.556)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start 5.08 5.08)
-					(end -5.08 -5.08)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "SK6812MINI-E_1_1"
-				(pin power_in line
-					(at 0 -7.62 90)
-					(length 2.54)
-					(name "VSS"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -7.62 0 0)
-					(length 2.54)
-					(name "DIN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 0 7.62 270)
-					(length 2.54)
-					(name "VDD"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 7.62 0 180)
-					(length 2.54)
-					(name "DOUT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2358,22 +2358,10 @@
 		(uuid "2595b874-7395-50c0-9243-fe933308ca40")
 	)
 	(junction
-		(at 345.44 226.06)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f4eeded4-c154-5f83-8c43-4b2419b51f59")
-	)
-	(junction
 		(at 381 167.64)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d1be14bb-b8b8-552e-8772-32f83b7184e6")
-	)
-	(junction
-		(at 381 226.06)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ba76ea0b-a9cf-5982-af97-97d5f32dbf0b")
 	)
 	(wire
 		(pts
@@ -3291,13 +3279,13 @@
 	(wire
 		(pts
 			(xy 309.88 226.06)
-			(xy 322.58 226.06)
+			(xy 388.62 226.06)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1dbcb576-6090-58e8-a395-648f3fc22fa9")
+		(uuid "abf6df13-f404-5076-80a5-4c1f600e4ea6")
 	)
 	(wire
 		(pts
@@ -3309,17 +3297,6 @@
 			(type default)
 		)
 		(uuid "f054946a-fa03-5165-ace2-27a01e310fb8")
-	)
-	(wire
-		(pts
-			(xy 337.82 226.06)
-			(xy 345.44 226.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8815f429-3318-5208-9c2c-20cf372dd1f0")
 	)
 	(wire
 		(pts
@@ -3345,28 +3322,6 @@
 	)
 	(wire
 		(pts
-			(xy 345.44 226.06)
-			(xy 345.44 227.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "74fdffb8-b1f5-5bfa-a5ed-562b6bd120b6")
-	)
-	(wire
-		(pts
-			(xy 345.44 226.06)
-			(xy 358.14 226.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1e1af2d0-9212-50d8-aa42-8cd8d2665641")
-	)
-	(wire
-		(pts
 			(xy 373.38 167.64)
 			(xy 381 167.64)
 		)
@@ -3375,17 +3330,6 @@
 			(type default)
 		)
 		(uuid "118201b9-c9ce-505d-8c66-0904236278e2")
-	)
-	(wire
-		(pts
-			(xy 373.38 226.06)
-			(xy 381 226.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cab95f23-42a3-5752-b0a2-d306d34eb072")
 	)
 	(wire
 		(pts
@@ -3408,28 +3352,6 @@
 			(type default)
 		)
 		(uuid "66372d76-0f47-519e-8aee-8c6b639633ab")
-	)
-	(wire
-		(pts
-			(xy 381 226.06)
-			(xy 381 227.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f8335cec-40b6-516a-bc3f-2166d822ce99")
-	)
-	(wire
-		(pts
-			(xy 381 226.06)
-			(xy 388.62 226.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6b45aae2-f73e-5737-8474-9d41974efc9f")
 	)
 	(wire
 		(pts
@@ -4727,7 +4649,7 @@
 			)
 		)
 	)
-	(text "LED_EN high turns the LED rail on. It is off by default (R12) and must be off in sleep:\n21 LEDs idle at 0.6 mA each. C10 (gate to drain) and R13 make the rail rise over about 1.5 ms,\nso switching the LEDs on does not dip the battery and reset the module.\nThe LEDs run from the battery, never from USB 5 V: their input threshold is 0.65 x VLED,\nwhich 3.3 V logic meets at 4.2 V but not at 5 V."
+	(text "LED_EN high turns the LED rail on. It is off by default (R12) and must be off in sleep:\n19 LEDs idle at 0.6 mA each. C10 (gate to drain) and R13 make the rail rise over about 1.5 ms,\nso switching the LEDs on does not dip the battery and reset the module.\nThe LEDs run from the battery, never from USB 5 V: their input threshold is 0.65 x VLED,\nwhich 3.3 V logic meets at 4.2 V but not at 5 V."
 		(exclude_from_sim no)
 		(at 17.78 106.68 0)
 		(effects
@@ -4736,7 +4658,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "1d471fb4-3ed8-55eb-a839-b3fac77e26f6")
+		(uuid "049210f4-4333-5c7b-9723-bc051bcaf2a1")
 	)
 	(rectangle
 		(start 195.58 17.78)
@@ -5010,7 +4932,7 @@
 		)
 	)
 	(symbol
-		(lib_id "LED:SK6812MINI-E")
+		(lib_id "DinoLight:SK6812MINI-012")
 		(at 269.24 73.66 0)
 		(unit 1)
 		(body_style 1)
@@ -5031,7 +4953,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "SK6812MINI-E"
+		(property "Value" "SK6812MINI-012"
 			(at 275.59 80.645 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5042,7 +4964,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount"
+		(property "Footprint" "DinoLight:LED_SK6812MINI-012_3.7x3.5mm"
 			(at 269.24 73.66 0)
 			(hide yes)
 			(show_name no)
@@ -5053,7 +4975,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.lcsc.com/datasheet/C5149201.pdf"
+		(property "Datasheet" ""
 			(at 269.24 73.66 0)
 			(hide yes)
 			(show_name no)
@@ -5075,7 +4997,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C5149201"
+		(property "LCSC" "C2886570"
 			(at 269.24 73.66 0)
 			(hide yes)
 			(show_name no)
@@ -5086,17 +5008,17 @@
 				)
 			)
 		)
-		(pin "1"
-			(uuid "2bfbd7f3-d3ac-5ef4-baa1-b3aec557d476")
-		)
-		(pin "2"
-			(uuid "e3da2e88-ab4e-5eca-8b08-6ca468b655fa")
-		)
 		(pin "3"
 			(uuid "bc1038c1-5f12-5d49-8745-b98d6ad80dc9")
 		)
 		(pin "4"
 			(uuid "88cd9606-b564-5fc2-b66e-5b5fa97ef48c")
+		)
+		(pin "1"
+			(uuid "2bfbd7f3-d3ac-5ef4-baa1-b3aec557d476")
+		)
+		(pin "2"
+			(uuid "e3da2e88-ab4e-5eca-8b08-6ca468b655fa")
 		)
 		(instances
 			(project "dinolight"
@@ -5206,10 +5128,6 @@
 				)
 			)
 		)
-	)
-	(no_connect
-		(at 276.86 73.66)
-		(uuid "aff8a47a-f047-58d5-820d-28c5d016fc7e")
 	)
 	(symbol
 		(lib_id "DinoLight:VLED")
@@ -5365,6 +5283,10 @@
 				)
 			)
 		)
+	)
+	(no_connect
+		(at 276.86 73.66)
+		(uuid "aff8a47a-f047-58d5-820d-28c5d016fc7e")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -5871,7 +5793,7 @@
 		)
 		(uuid "62e75837-f357-5a56-bc1b-ab446a113450")
 	)
-	(text "The eye is one reverse-mount LED (SK6812MINI-E) on the parts side, shining through a slot in the\nboard to the show face. Pins 1 GND, 2 DIN, 3 VDD, 4 DOUT. R14, R15 damp the data edges."
+	(text "The eye is one ordinary top-emitting LED (SK6812MINI-012) on the parts side, shining away from the\nboard through a hole in the printed case. Pins 1 DIN, 2 VDD, 3 DOUT, 4 GND. R14, R15 damp the data edges."
 		(exclude_from_sim no)
 		(at 198.12 101.6 0)
 		(effects
@@ -5880,7 +5802,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "d68453b0-7bec-57cd-9211-937011d80e32")
+		(uuid "069bc46f-f03a-5d15-a697-97e9faed1067")
 	)
 	(rectangle
 		(start 15.24 132.08)
@@ -5892,9 +5814,9 @@
 		(fill
 			(type none)
 		)
-		(uuid "8a8d3443-b9e8-53b9-84e4-6088da19d6f8")
+		(uuid "0d03ad89-cbc3-5d7c-948d-edca13941ccf")
 	)
-	(text "Spine: 20 side-emitting LEDs, D1 at the head, each with 100 nF beside it"
+	(text "Spine: 18 side-emitting LEDs, D1 at the head, each with 100 nF beside it"
 		(exclude_from_sim no)
 		(at 17.145 133.604 0)
 		(effects
@@ -5905,7 +5827,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "cd7786ce-51fd-57e4-9688-b26ce9cbbdcc")
+		(uuid "4863cd16-8417-5b9b-a7a5-9a03a1ea3b91")
 	)
 	(symbol
 		(lib_id "DinoLight:SK6812SIDE-A")
@@ -14907,1006 +14829,6 @@
 			)
 		)
 	)
-	(symbol
-		(lib_id "DinoLight:SK6812SIDE-A")
-		(at 330.2 226.06 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "b22b9873-59a4-5b5f-b798-a18ad158244a")
-		(property "Reference" "D19"
-			(at 331.47 219.456 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "SK6812SIDE-A"
-			(at 330.2 226.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "DinoLight:LED_SK6812SIDE-A_4.0x1.6mm"
-			(at 330.2 226.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 330.2 226.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "RGB LED with integrated controller"
-			(at 330.2 226.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC" "C5378721"
-			(at 330.2 226.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "3"
-			(uuid "f0a14002-b4ee-5e46-9b59-704e428609d6")
-		)
-		(pin "4"
-			(uuid "76dbb7da-0646-5fcf-87c5-2106a060d914")
-		)
-		(pin "1"
-			(uuid "0e193424-b974-5a8a-af5a-f964b1e67c34")
-		)
-		(pin "2"
-			(uuid "d308558a-714f-557c-8a59-668a613aa971")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "D19")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "DinoLight:VLED")
-		(at 330.2 218.44 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "ea012877-cbdc-5db2-8825-4d674b240636")
-		(property "Reference" "#PWR148"
-			(at 330.2 218.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "VLED"
-			(at 330.2 214.503 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 330.2 218.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 330.2 218.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VLED\""
-			(at 330.2 218.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "7e653879-04b3-523a-94c2-81e9b6c16e5b")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "#PWR148")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 330.2 233.68 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "7961d5e0-822f-53da-87fe-a2b8d4421fea")
-		(property "Reference" "#PWR149"
-			(at 330.2 233.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 330.2 233.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 330.2 233.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 330.2 233.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 330.2 233.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "380d517c-00c3-5ad5-9f3c-365efe206a43")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "#PWR149")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 347.98 213.36 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "b8193070-7729-5f77-bf93-8780ff3591cc")
-		(property "Reference" "C29"
-			(at 351.028 213.36 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "100nF"
-			(at 347.98 213.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 347.98 213.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 347.98 213.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Unpolarized capacitor"
-			(at 347.98 213.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC" "C1525"
-			(at 347.98 213.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "b21726ee-fa3a-5a58-8087-5c1bc9537b8d")
-		)
-		(pin "2"
-			(uuid "367c49c8-b346-5e93-a668-12e4583682bf")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "C29")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "DinoLight:VLED")
-		(at 347.98 209.55 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "01838a30-c1d7-5c80-a9f3-b7e8dc4606b5")
-		(property "Reference" "#PWR150"
-			(at 347.98 209.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "VLED"
-			(at 347.98 205.613 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 347.98 209.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 347.98 209.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VLED\""
-			(at 347.98 209.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "f6161c48-e71d-576f-8d41-83e51e2d59a1")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "#PWR150")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 347.98 217.17 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "83af6d97-6eff-5844-8636-ed6513c675af")
-		(property "Reference" "#PWR151"
-			(at 347.98 217.17 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 347.98 217.17 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 347.98 217.17 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 347.98 217.17 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 347.98 217.17 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "16875dde-c5e2-554b-ae19-711e2c728182")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "#PWR151")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "DinoLight:SK6812SIDE-A")
-		(at 365.76 226.06 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "daad3cd0-e526-5d4c-a306-1b34f7d9621d")
-		(property "Reference" "D20"
-			(at 367.03 219.456 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "SK6812SIDE-A"
-			(at 365.76 226.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "DinoLight:LED_SK6812SIDE-A_4.0x1.6mm"
-			(at 365.76 226.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 365.76 226.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "RGB LED with integrated controller"
-			(at 365.76 226.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC" "C5378721"
-			(at 365.76 226.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "3"
-			(uuid "d009d3b4-55fb-5a99-a356-45b892b09696")
-		)
-		(pin "4"
-			(uuid "43bd9580-63a9-5ff1-9ad5-ba6268e874bf")
-		)
-		(pin "1"
-			(uuid "5b00ec92-b3cb-505c-8de5-f99507cc90af")
-		)
-		(pin "2"
-			(uuid "b1e26745-0b14-5bb4-9e28-7fc0ed752de2")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "D20")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "DinoLight:VLED")
-		(at 365.76 218.44 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "3afa89d6-80d4-52c9-b939-0dc2d480eee0")
-		(property "Reference" "#PWR152"
-			(at 365.76 218.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "VLED"
-			(at 365.76 214.503 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 365.76 218.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 365.76 218.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VLED\""
-			(at 365.76 218.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "c90bbdb7-ff8a-57f9-958c-0e123fb40b57")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "#PWR152")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 365.76 233.68 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "ee85dcc9-220d-531c-8c7b-4fb3c8a1e221")
-		(property "Reference" "#PWR153"
-			(at 365.76 233.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 365.76 233.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 365.76 233.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 365.76 233.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 365.76 233.68 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "90040f2e-78ba-56c7-890c-296ab5762dd9")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "#PWR153")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 383.54 213.36 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "e125a684-d539-50cb-9714-b9649d51c01d")
-		(property "Reference" "C30"
-			(at 386.588 213.36 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "100nF"
-			(at 383.54 213.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 383.54 213.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 383.54 213.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Unpolarized capacitor"
-			(at 383.54 213.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC" "C1525"
-			(at 383.54 213.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "8ee7e5eb-0a61-581d-af8d-e98671d08312")
-		)
-		(pin "2"
-			(uuid "3342bdc4-a94a-50e8-b45f-69834d705bcb")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "C30")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "DinoLight:VLED")
-		(at 383.54 209.55 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "5a23fbe9-0491-583a-92c8-16d3b8b8a949")
-		(property "Reference" "#PWR154"
-			(at 383.54 209.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "VLED"
-			(at 383.54 205.613 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 383.54 209.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 383.54 209.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VLED\""
-			(at 383.54 209.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "13c0c7ef-c28a-56b0-a657-0922079fb896")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "#PWR154")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 383.54 217.17 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "6a89621d-3764-57a1-990e-8caa34d65393")
-		(property "Reference" "#PWR155"
-			(at 383.54 217.17 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 383.54 217.17 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 383.54 217.17 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 383.54 217.17 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 383.54 217.17 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "49bd0758-b88b-5473-ad7c-45b1484e0628")
-		)
-		(instances
-			(project "dinolight"
-				(path "/c93e0f4c-0cc3-5005-a786-c8b017fe494d/8cd44f33-4849-5817-89a8-3641d855a7a6"
-					(reference "#PWR155")
-					(unit 1)
-				)
-			)
-		)
-	)
 	(global_label "SPINE_DIN"
 		(shape passive)
 		(at 33.02 167.64 180)
@@ -16303,50 +15225,6 @@
 			)
 		)
 	)
-	(global_label "SPINE_18"
-		(shape passive)
-		(at 309.88 227.33 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "c67e6c61-9576-51f3-aaa4-1f5ee34a6905")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 309.88 227.33 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-	)
-	(global_label "SPINE_19"
-		(shape passive)
-		(at 345.44 227.33 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "8c91357d-d080-5e02-89dd-6bde85775652")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 345.44 227.33 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-	)
 	(symbol
 		(lib_id "Connector:TestPoint")
 		(at 388.62 226.06 0)
@@ -16427,16 +15305,16 @@
 	)
 	(global_label "SPINE_OUT"
 		(shape passive)
-		(at 381 227.33 270)
+		(at 309.88 227.33 270)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "458e31f1-c5c0-5afa-9b98-1279c83d6f19")
+		(uuid "2a51e54e-0e00-549c-9c79-c3ede23e2393")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 381 227.33 0)
+			(at 309.88 227.33 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)

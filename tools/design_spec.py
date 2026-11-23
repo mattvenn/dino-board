@@ -15,7 +15,8 @@ from schdraw import kid, kids, q, unq
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SYMLIB = os.path.join(ROOT, 'lib', 'DinoLight.kicad_sym')
 
-N_LED = 20                      # spine LEDs D1..D20, D1 at the head
+N_LED = 18                      # spine LEDs D1..D18, D1 at the head (D19, D20 and their capacitors C29, C30 were
+                                # taken off on 2026-11-23; the eye keeps the names D21 and C31). Must match outline/make_outline.py
 # touch channels, in MPR121 electrode order ELE0..ELE11: (net stem, what it is). ELEn is U7 pin 8 + n.
 TOUCH = [('SPINE%d' % (i + 1), 'spine %d' % (i + 1)) for i in range(8)]
 # in controller channel order (ELE8..11). The three long lines leave the controller nested, tail outermost,
@@ -115,6 +116,9 @@ def ensure_symbols():
     # side LED: same drawing as the MINI-E, pins renumbered to the SIDE-A datasheet (1 DIN 2 VDD 3 DOUT 4 GND)
     _copy_symbol('LED', 'SK6812MINI', 'SK6812SIDE-A', numbers={'DIN': '1', 'VDD': '2', 'DOUT': '3', 'VSS': '4'},
                  names={'VSS': 'GND'}, value='SK6812SIDE-A')
+    # eye LED: the same drawing and the same pin numbers (SK6812MINI-012 datasheet: 1 DIN 2 VDD 3 DOUT 4 GND)
+    _copy_symbol('LED', 'SK6812MINI', 'SK6812MINI-012', numbers={'DIN': '1', 'VDD': '2', 'DOUT': '3', 'VSS': '4'},
+                 names={'VSS': 'GND'}, value='SK6812MINI-012')
     # slide switch: SPDT plus its metal frame (datasheet circuit: 2 is the common, 4 the frame)
     _copy_symbol('Switch', 'SW_SPDT', 'MSK12C02', add_pin=('SH', 'SH', 0, -5.08, 90), value='MSK12C02')
     schdraw.make_power_symbol(SYMLIB, 'VLED', like='+3V3')
@@ -193,9 +197,10 @@ def declare(d):
     d.comp('SW3', 'Switch:SW_Push', 'BOOT', 'Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A', lcsc='C318884')
     for i in range(1, N_LED + 1):
         d.comp('D%d' % i, 'DinoLight:SK6812SIDE-A', 'SK6812SIDE-A', 'DinoLight:LED_SK6812SIDE-A_4.0x1.6mm', lcsc='C5378721')
-    # the eye: a reverse-mount LED on the parts side, shining through a slot to the show face.
-    # JLCPCB rates it 'assembly difficulty high, Standard only'. Pins 1 GND, 2 DIN, 3 VDD, 4 DOUT.
-    d.comp('D21', 'LED:SK6812MINI-E', 'SK6812MINI-E', 'LED_SMD:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount', lcsc='C5149201')
+    # the eye: an ordinary top-emitting LED on the parts side, shining away from the board through a hole in
+    # the printed case (the owner, 2026-11-23: "not a reverse light thing"). OPSCO SK6812MINI-012, 3.7 x 3.5 mm.
+    # Pins 1 DIN, 2 VDD, 3 DOUT, 4 GND (datasheet Rev B/0, section 5): the same numbers as the side LED.
+    d.comp('D21', 'DinoLight:SK6812MINI-012', 'SK6812MINI-012', 'DinoLight:LED_SK6812MINI-012_3.7x3.5mm', lcsc='C2886570')
     # passives
     r('R1 R2', '5.1k')
     # R12, R36: gate pull-downs. 4.7k, not 100k: CircuitPython puts a 45k pull-up on every pin the program has
@@ -212,7 +217,7 @@ def declare(d):
     c('C1 C2 C3 C4 C5 C8 C9', '10uF')
     c('C42', '1uF')
     c('C40', '4.7uF')
-    c('C6 C7 C10 C32 C33 C34 C36 C37 C38 C39 C41 C43 C44 ' + ' '.join('C%d' % (10 + i) for i in range(1, N_LED + 2)), '100nF')
+    c('C6 C7 C10 C32 C33 C34 C36 C37 C38 C39 C41 C43 C44 ' + ' '.join('C%d' % (10 + i) for i in range(1, N_LED + 1)) + ' C31', '100nF')
     # board features with nothing to buy
     for ref in ('SJ1', 'SJ2'):
         d.comp(ref, 'Jumper:SolderJumper_3_Bridged12', 'polarity',
@@ -221,7 +226,7 @@ def declare(d):
         d.comp(ELECTRODE.get(stem, 'E%d' % i), 'Connector:TestPoint', what, 'DinoLight:TouchAnchor', nobom=True)
     for i, net in enumerate(TESTPOINTS, 1):
         d.comp('TP%d' % i, 'Connector:TestPoint', net, 'TestPoint:TestPoint_Pad_D1.5mm', nobom=True)
-    for i in (1, 2, 3):
+    for i in (1, 2):
         d.comp('H%d' % i, 'Mechanical:MountingHole', 'M2.5', 'MountingHole:MountingHole_2.7mm_M2.5', nobom=True)
 
     n = d.net
@@ -231,7 +236,7 @@ def declare(d):
       *u4_gnd, 'C5.2', 'C6.2', 'C32.2', 'SW2.2', 'SW3.2', 'U6.1', 'C36.2', 'U7.6', 'C37.2', 'C38.2', 'R33.2', 'U5.1', 'U5.2', 'U5.3', 'U5.6', 'U5.7', 'C33.2', 'C34.2',
       'U8.9', 'U8.11', 'C39.2', 'C40.2', 'U9.4', 'C41.2', 'U10.3', 'C42.2', 'U11.3', 'U11.5', 'U11.7', 'U11.8', 'U11.9', 'C43.2', 'C44.2',
       'Q4.2', 'R36.2',
-      'J3.1', 'J3.MP', 'Q3.2', 'R12.2', 'C8.2', 'C9.2', 'D21.1', 'C31.2', 'TP1.1',
+      'J3.1', 'J3.MP', 'Q3.2', 'R12.2', 'C8.2', 'C9.2', 'D21.4', 'C31.2', 'TP1.1',
       *['D%d.4' % i for i in range(1, N_LED + 1)], *['C%d.2' % (10 + i) for i in range(1, N_LED + 1)])
     n('VBUS', 'J1.A4', 'J1.A9', 'J1.B4', 'J1.B9', 'U1.5', 'C1.1', 'U2.4', 'D23.2', 'R8.1', 'TP4.1')
     n('EN_USB', 'D23.1', 'R4.1')
@@ -239,7 +244,7 @@ def declare(d):
     n('+3V3', 'U3.5', 'C4.1', 'U4.3', 'C5.1', 'C6.1', 'R16.1', 'U5.5', 'U5.8', 'U5.12', 'C33.1', 'C34.1',
       'U8.2', 'C39.1', 'U9.3', 'C41.1', 'U10.1', 'C42.1', 'U11.1', 'U11.6', 'U11.10', 'C43.1', 'C44.1', 'R35.1', 'R37.1',
       'R17.1', 'R18.1', 'J3.2', 'TP2.1', 'U6.3', 'C36.1', 'U7.20', 'C37.1', 'R34.1')
-    n('VLED', 'Q2.3', 'C8.1', 'C9.1', 'C10.2', 'D21.3', 'C31.1', 'TP5.1',
+    n('VLED', 'Q2.3', 'C8.1', 'C9.1', 'C10.2', 'D21.2', 'C31.1', 'TP5.1',
       *['D%d.2' % i for i in range(1, N_LED + 1)], *['C%d.1' % (10 + i) for i in range(1, N_LED + 1)])
     # battery input
     n('BAT_P1', 'J2.1', 'F1.1')            # the fuse is in series with the connector pin, ahead of the jumpers
@@ -292,7 +297,7 @@ def declare(d):
         n('SPINE_%d' % i, 'D%d.3' % i, 'D%d.1' % (i + 1))
     n('SPINE_OUT', 'D%d.3' % N_LED, 'TP11.1')
     n('EYE_DATA', 'U4.30', 'R15.1')
-    n('EYE_DIN', 'R15.2', 'D21.2', 'TP16.1')
+    n('EYE_DIN', 'R15.2', 'D21.1', 'TP16.1')
     # deliberately open
-    d.nc('J1.A8', 'J1.B8', 'SW1.3', 'D21.4', 'U3.4', 'U10.5',
+    d.nc('J1.A8', 'J1.B8', 'SW1.3', 'D21.3', 'U3.4', 'U10.5',
          *['U4.%d' % p for p in (6, 9, 10, 11, 12, 13, 16, 17, 18, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 41, 44)])

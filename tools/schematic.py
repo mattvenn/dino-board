@@ -203,7 +203,7 @@ for i, net in enumerate(spec.TESTPOINTS[:5]):
     else:
         P.wire((x, y), (x, y + 3), (x + 4, y + 3))
         P.power(net, x + 4, y + 3)
-for i in (1, 2, 3):
+for i in (1, 2):
     P.part('H%d' % i, 304, 114 + i * 12, ref=(0, -2.6, 'c'), val=(0, 2.6, 'c'))
 P.note(240, 165, 'Page 2: module, touch, Qwiic.', 'Page 3: LED rail, eye, spine chain.', 'Page 4: sensors and buzzer.')
 
@@ -307,7 +307,7 @@ M.note(14, 184,
        'VBUS_DET       GPIO18, high = USB present',
        'LED_EN         GPIO21, high = LED rail on',
        'SDA, SCL       GPIO41, GPIO42 (accelerometer 0x19, Qwiic)',
-       'SPINE_DATA     GPIO11, 20 LEDs, first at the head',
+       'SPINE_DATA     GPIO11, %d LEDs, first at the head' % spec.N_LED,
        'BUZZ           GPIO4, high = buzzer on (4 kHz square wave)',
        'EYE_DATA       GPIO48, 1 LED',
        'UART           GPIO43 TX, GPIO44 RX on test points',
@@ -348,7 +348,7 @@ c8 = L.part('C8', 104, 66)
 L.wire((104, 62), c8.p(1))
 L.power('GND', *c8.p(2))
 L.note(14, 84, 'LED_EN high turns the LED rail on. It is off by default (R12) and must be off in sleep:',
-       '21 LEDs idle at 0.6 mA each. C10 (gate to drain) and R13 make the rail rise over about 1.5 ms,',
+       '19 LEDs idle at 0.6 mA each. C10 (gate to drain) and R13 make the rail rise over about 1.5 ms,',
        'so switching the LEDs on does not dip the battery and reset the module.',
        'The LEDs run from the battery, never from USB 5 V: their input threshold is 0.65 x VLED,',
        'which 3.3 V logic meets at 4.2 V but not at 5 V.')
@@ -363,19 +363,19 @@ L.glabel('EYE_DATA', 172, 58, rot=180)
 r15 = L.part('R15', 184, 58, rot=90, **ACROSS)
 L.wire((172, 58), r15.p(1))
 d21 = L.part('D21', 212, 58, ref=(1, -5.2, 'l'), val=(5, 5.5, 'l'))
-L.wire(r15.p(2), d21.p(2))
+L.wire(r15.p(2), d21.p(1))
 L.name_wire('EYE_DIN', (196, 58), 'up')
 L.part('TP16', 202, 58, ref=(1.5, -2.6, 'l'), val=None)
+L.connect(d21, 2)
 L.connect(d21, 4)
 L.connect(d21, 3)
-L.connect(d21, 1)
 for ref, x in (('C31', 250), ('C9', 298)):
     L.connect_all(L.part(ref, x, 58))
 L.hint('C9: at the tail end of the rail', 290, 68)
-L.note(156, 80, 'The eye is one reverse-mount LED (SK6812MINI-E) on the parts side, shining through a slot in the',
-       'board to the show face. Pins 1 GND, 2 DIN, 3 VDD, 4 DOUT. R14, R15 damp the data edges.')
+L.note(156, 80, 'The eye is one ordinary top-emitting LED (SK6812MINI-012) on the parts side, shining away from the',
+       'board through a hole in the printed case. Pins 1 DIN, 2 VDD, 3 DOUT, 4 GND. R14, R15 damp the data edges.')
 
-L.frame(12, 104, 318, 197, 'Spine: 20 side-emitting LEDs, D1 at the head, each with 100 nF beside it')
+L.frame(12, 104, 318, 197, 'Spine: %d side-emitting LEDs, D1 at the head, each with 100 nF beside it' % spec.N_LED)
 X0, PITCH, ROWS = 36, 28, (132, 178)
 leds = []
 for k in range(spec.N_LED):
