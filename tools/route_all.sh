@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build and route the board from the schematic's netlist, start to finish. About 40 minutes.
+# Build and route the board from the schematic's netlist, start to finish. About an hour.
 #   tools/route_all.sh            everything
 #   tools/route_all.sh finish     skip the autorouter: use its saved result, routing/route_signals.ses
 #                                 (only valid while the placement and scripted tracks are unchanged)
@@ -21,7 +21,7 @@ cp dinolight.kicad_pcb $W/strip.kicad_pcb                       # what counts as
 if [ "$1" != "finish" ]; then
     "$KPY" tools/route_board.py dsn 2>&1 | quiet
     rm -f $W/route.ses
-    # 80 passes, about 12 minutes: it gains almost nothing after pass 50, and the patch router finishes
+    # 80 passes, about 35 minutes on four layers: it gains almost nothing after pass 50, and the patch router finishes
     # what is left. Keep the Mac awake (lid open): the autorouter's time limits expire during sleep and
     # it then fails most connections.
     caffeinate -is tools/freerouting_capped.sh ${PASSES:-80} $W/route.dsn $W/route.ses > $W/freerouting.log 2>&1
@@ -35,9 +35,12 @@ fi
 "$KPY" tools/patch_route.py --rounds 6 2>&1 | quiet             # anything the tidying opened
 "$KPY" tools/patch_route.py --ground --rounds 6 2>&1 | quiet    # every ground pad tied in by track
 "$KPY" tools/patch_route.py --rounds 6 2>&1 | quiet             # anything the ground tracks pushed aside
+"$KPY" tools/patch_route.py --plane-vias 1.5 2>&1 | quiet       # a via to the ground plane beside every ground pad
+"$KPY" tools/patch_route.py --rounds 4 2>&1 | quiet             # anything those took the room of
+"$KPY" tools/patch_route.py --fatten 2>&1 | quiet                # wider supply tracks on the half-ounce inner layer
 "$KPY" tools/trim_dangling.py 2>&1 | quiet                      # KiCad's own list of dead ends, safely
 cp dinolight.kicad_pcb $W/before_pour.kicad_pcb
-"$KPY" tools/route_board.py pour 2>&1 | quiet                   # ground pours on both faces, stitching vias
+"$KPY" tools/route_board.py pour 2>&1 | quiet                   # ground plane, pours on the other layers, stitching vias
 "$K" pcb drc --format json --severity-all --schematic-parity -o $W/drc.json dinolight.kicad_pcb > /dev/null
 python3 tools/drc_summary.py $W/drc.json
 rm -f ./~*.lck

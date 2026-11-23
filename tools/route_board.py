@@ -6,7 +6,7 @@
     java -jar ~/.kicad-mcp/freerouting.jar -de build/pcb/route.dsn -do build/pcb/route.ses -mp 40
     $KPY tools/route_board.py ses       bring the autorouter's tracks back into the board
     $KPY tools/route_board.py dsn-ground   the same again with ground included, then the autorouter and ses again
-    $KPY tools/route_board.py pour      ground pours on both faces, pour-free areas, fill
+    $KPY tools/route_board.py pour      ground plane and pours on all four layers, pour-free areas, fill
 
 The LED strip cell, in each LED's own frame (x along the edge towards the next LED, d = depth in from the edge):
 
@@ -40,7 +40,15 @@ POWER_NETS = ['+3V3', '+BATT', 'VBUS', 'VLED', 'BAT_P1', 'BAT_P1F', 'BAT_P2', 'B
 W_POWER = 0.4
 N_LED = mo.N_LED
 W_SIGNAL_AUTO = 0.15                     # the board's default track width, used by the autorouter
-STITCH = 4.0                             # grid for the vias that join the two ground pours
+STITCH = 4.0                             # grid for the vias that join the ground pours
+# Four layers: parts side / ground plane / inner signals / show face. Tracks go on the parts side and the
+# inner signal layer; the show face is left to the touch copper, the LED ground strip and ground pour, and
+# takes a track only where the patch router finds no other way.
+PLANE, INNER = pcbnew.In1_Cu, pcbnew.In2_Cu
+OUTER = (pcbnew.F_Cu, pcbnew.B_Cu)
+ALL_CU = (pcbnew.F_Cu, PLANE, INNER, pcbnew.B_Cu)
+ROUTE_LAYERS = (pcbnew.F_Cu, INNER, pcbnew.B_Cu)
+NEAR_SHOW = (INNER, pcbnew.B_Cu)         # the show face and the layer 0.2 mm behind it
 
 
 def B(x, y):
@@ -94,12 +102,20 @@ def via(board, at, net):
     board.Add(v)
 
 
-def band_polygon(d0, d1, s0=0.0, s1=None, step=1.5):
-    """a strip following the spine edge, in BOARD mm"""
+def band_polygon(d0, d1, s0=0.0, s1=None, step=1.5, ext=0.0):
+    """a strip following the spine edge, in BOARD mm; ext carries it on past both ends, along the edge"""
     s1 = mo.spine_len if s1 is None else s1
     n = max(2, int((s1 - s0) / step))
+
+    def end(s, d, e):
+        x, y, ang = mo.at(mo.SPINE, s, d)
+        return (x + e * math.cos(math.radians(ang)), y + e * math.sin(math.radians(ang)))
+
     top = [mo.at(mo.SPINE, s0 + (s1 - s0) * k / n, d0)[:2] for k in range(n + 1)]
     bot = [mo.at(mo.SPINE, s0 + (s1 - s0) * k / n, d1)[:2] for k in range(n, -1, -1)]
+    if ext:
+        top = [end(s0, d0, -ext)] + top + [end(s1, d0, ext)]
+        bot = [end(s1, d1, ext)] + bot + [end(s0, d1, -ext)]
     return [B(*p) for p in top + bot]
 
 
@@ -149,7 +165,9 @@ def stage_strip():
     for a, b in zip(chain_pts, chain_pts[1:]):
         track(board, a, b, 0.3, gnd, pcbnew.B_Cu)
     touch_block(board, f)
+    tail_link(board, f)
     accelerometer(board, f)
+    pressure(board, f)
     snout_link(board, f)
     # ground strip on the show face, under the LED row and outboard of the touch slider
     g = pcbnew.PCB_SHAPE(board)
@@ -251,6 +269,26 @@ def touch_block(board, f):
         path(board, [B(*mo.at(mo.SLIDER, s0 + (s1 - s0) * q / n, gd)[:2]) for q in range(n + 1)], tb.GUARD_W, gnd)
 
 
+def tail_link_points(f):
+    """the tail line's run from the stub below its lane straight to the tail pad's plated hole, BOARD mm"""
+    return [B(*mo.at(mo.SLIDER, mo.slider_len - 1.0, tb.LONG_STUB_DEPTH)[:2]), pad(f['E12'], '1')]
+
+
+def tail_link(board, f):
+    a, b = tail_link_points(f)
+    track(board, a, b, tb.W, list(f['E12'].Pads())[0].GetNet())
+
+
+def stem_areas(board):
+    """a corridor round the tail line's run to its pad, for a parts-side keep-out: other tracks cross on In2"""
+    a, b = tail_link_points(fps(board))
+    L = math.dist(a, b)
+    ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
+    c = tb.STEM_CLEAR
+    a2, b2 = (a[0] - ux * 0.1, a[1] - uy * 0.1), (b[0] - ux * 1.2, b[1] - uy * 1.2)      # stops short of the pad's hole
+    return [[(a2[0] - uy * c, a2[1] + ux * c), (b2[0] - uy * c, b2[1] + ux * c), (b2[0] + uy * c, b2[1] - ux * c), (a2[0] + uy * c, a2[1] - ux * c)]]
+
+
 def accelerometer(board, f):
     """U5's neighbouring pads that share a net, joined directly: SA0, SDx and SCx (all grounded) and the two grounds."""
     u5 = f['U5']
@@ -260,6 +298,21 @@ def accelerometer(board, f):
         if net.GetNetname() != other.GetNetname():
             raise SystemExit('U5 pads %s and %s are not on one net: accelerometer() is out of date' % (a, b))
         track(board, pad(u5, a), pad(u5, b), 0.2, net)
+
+
+def pressure(board, f):
+    """U11 (BMP580, 2 x 2 mm, ten pads round the edge). Its three supply pads are not together: VDD (10) and
+    VDDIO (1) share a corner, CSB (6, tied high for I2C) is on the far side between two grounded pads. Left
+    to the routers, SDA and 3.3 V took turns under the body and neither stayed. So: 10 to 1 round the corner,
+    1 to 6 straight through the middle (0.24 mm clear of SCK's pad, the nearest), and the grounded pads that
+    are neighbours joined (INT 7, VSS 8, VSS 9). Bosch's datasheet (section 8.2) gives only the landing
+    pattern and says nothing against copper under the part; its separate handling note has not been read."""
+    u = f['U11']
+    net = lambda n: [q for q in u.Pads() if q.GetNumber() == n][0].GetNet()
+    for a, b in (('10', '1'), ('1', '6'), ('7', '8'), ('8', '9')):
+        if net(a).GetNetname() != net(b).GetNetname():
+            raise SystemExit('U11 pads %s and %s are not on one net: pressure() is out of date' % (a, b))
+        track(board, pad(u, a), pad(u, b), 0.15, net(a))
 
 
 def snout_link(board, f):
@@ -298,7 +351,7 @@ def ellipse(cx, cy, rx, ry, rot, grow=0.0, n=40):
 
 def touch_areas(grow):
     import build_board as bb
-    areas = [band_polygon(BAND[0] - grow, BAND[1] + grow, 0.0, mo.spine_len)]
+    areas = [band_polygon(BAND[0] - grow, BAND[1] + grow, 0.0, mo.spine_len, ext=grow)]
     areas += [ellipse(cx, cy, rx, ry, rot, grow) for cx, cy, rx, ry, rot in bb.PADS.values()]
     return areas
 
@@ -316,12 +369,14 @@ def hole_areas(board, n=28):
     return out
 
 
-QUIET = {'U8': 3.2, 'U9': 2.2}           # no pour, no vias, no show-face tracks within this of the part's centre
+QUIET = {'U8': 2.0, 'U9': 2.2}           # no pour, no vias, no show-face or In2 tracks within this of the part's centre
+PLANE_STAYS = ('U8',)                    # ...except that the ground plane carries on under the compass: it sits in the
+                                         # tail stem, and a hole in the plane there would cut the tail's ground off
 UNDER = {'U8': (0.85, 0.85), 'U9': (0.3, 0.75)}   # and no parts-side tracks under the body, between its pads
 
 
 def quiet_areas(board):
-    """[(square round the magnetometer or the temperature sensor, the smaller box under its body)], board mm"""
+    """[(ref, square round the magnetometer or the temperature sensor, the smaller box under its body)], board mm"""
     out = []
     f = fps(board)
     for ref, half in QUIET.items():
@@ -329,7 +384,7 @@ def quiet_areas(board):
             c = f[ref].GetPosition()
             x, y = to_mm(c.x), to_mm(c.y)
             ux, uy = UNDER[ref]
-            out.append(([(x - half, y - half), (x + half, y - half), (x + half, y + half), (x - half, y + half)],
+            out.append((ref, [(x - half, y - half), (x + half, y - half), (x + half, y + half), (x - half, y + half)],
                         [(x - ux, y - uy), (x + ux, y - uy), (x + ux, y + uy), (x - ux, y + uy)]))
     return out
 
@@ -366,20 +421,24 @@ def stage_dsn(with_ground=False):
                     else:
                         p.SetNetCode(0)
         print('ground pads kept on their net for the autorouter: %d' % kept)
-    both = (pcbnew.F_Cu, pcbnew.B_Cu)
-    rule_area(board, band_polygon(0.2, BAND[1] + 0.6, 0.0, mo.spine_len), (pcbnew.B_Cu,), tracks=True, name='spine show face')
-    rule_area(board, band_polygon(BAND[0] - 0.4, BAND[1] + 0.6, 0.0, mo.spine_len), both, vias=True, name='slider no vias')
-    rule_area(board, band_polygon(0.2, STRIP[1] + 0.3, 0.0, mo.spine_len), both, vias=True, name='strip no vias')
+    rule_area(board, band_polygon(0.2, BAND[1] + 0.6, 0.0, mo.spine_len, ext=0.6), NEAR_SHOW, tracks=True, name='spine show face')
+    rule_area(board, band_polygon(BAND[0] - 0.4, BAND[1] + 0.6, 0.0, mo.spine_len, ext=0.6), ALL_CU, vias=True, name='slider no vias')
+    for poly in stem_areas(board):
+        rule_area(board, poly, (pcbnew.F_Cu,), tracks=True, name='touch line corridor')
+    rule_area(board, band_polygon(0.2, STRIP[1] + 0.3, 0.0, mo.spine_len), ALL_CU, vias=True, name='strip no vias')
     for poly in touch_areas(0.6)[1:]:
-        rule_area(board, poly, (pcbnew.B_Cu,), tracks=True, name='touch pad')
-        rule_area(board, poly, both, vias=True, name='touch pad no vias')
-    rule_area(board, antenna_area(board), both, tracks=True, vias=True, name='antenna')
+        rule_area(board, poly, NEAR_SHOW, tracks=True, name='touch pad')
+        rule_area(board, poly, ALL_CU, vias=True, name='touch pad no vias')
+    rule_area(board, antenna_area(board), ALL_CU, tracks=True, vias=True, name='antenna')
     for poly in hole_areas(board):
-        rule_area(board, poly, both, tracks=True, vias=True, name='mounting hole')
-    for outer, inner in quiet_areas(board):
-        rule_area(board, outer, both, vias=True, name='quiet sensor: no vias')
-        rule_area(board, outer, (pcbnew.B_Cu,), tracks=True, name='quiet sensor: show face')
+        rule_area(board, poly, ALL_CU, tracks=True, vias=True, name='mounting hole')
+    for ref, outer, inner in quiet_areas(board):
+        rule_area(board, outer, ALL_CU, vias=True, name='quiet sensor: no vias')
+        rule_area(board, outer, NEAR_SHOW, tracks=True, name='quiet sensor: show face')
         rule_area(board, inner, (pcbnew.F_Cu,), tracks=True, name='quiet sensor: under the body')
+    # the autorouter gets the parts side and the inner signal layer only
+    whole = [B(*p) for p in mo.OUTLINE]
+    rule_area(board, whole, (PLANE, pcbnew.B_Cu), tracks=True, name='not for the autorouter')
     os.makedirs(WORK, exist_ok=True)
     tmp = os.path.join(WORK, 'route_in.kicad_pcb')
     pcbnew.SaveBoard(tmp, board)
@@ -434,24 +493,25 @@ def stage_pour():
     board = pcbnew.LoadBoard(BOARD)
     gnd = board.FindNet('GND')
     outline = [B(*p) for p in mo.OUTLINE]
-    both = (pcbnew.F_Cu, pcbnew.B_Cu)
-    # pour-free areas: behind the touch copper on the parts side, round it on the show face, and the antenna
+    # pour-free areas: behind the touch copper on the parts side and the ground plane (both about 1.4 mm
+    # from it), round it on the show face and on the inner signal layer 0.2 mm behind it, and the antenna
     for poly in touch_areas(0.3):
-        rule_area(board, poly, (pcbnew.F_Cu,), pour=True, name='no pour behind touch')
+        rule_area(board, poly, (pcbnew.F_Cu, PLANE), pour=True, name='no pour behind touch')
     for poly in touch_areas(1.5):
-        rule_area(board, poly, (pcbnew.B_Cu,), pour=True, name='no pour round touch')
-    rule_area(board, antenna_area(board), both, tracks=True, vias=True, pour=True, name='antenna')
+        rule_area(board, poly, NEAR_SHOW, pour=True, name='no pour round touch')
+    rule_area(board, antenna_area(board), ALL_CU, tracks=True, vias=True, pour=True, name='antenna')
     for poly in hole_areas(board):
-        rule_area(board, poly, both, tracks=True, vias=True, pour=True, name='mounting hole')
-    for outer, inner in quiet_areas(board):
-        rule_area(board, outer, both, vias=True, pour=True, name='quiet sensor')
+        rule_area(board, poly, ALL_CU, tracks=True, vias=True, pour=True, name='mounting hole')
+    for ref, outer, inner in quiet_areas(board):
+        rule_area(board, outer, tuple(l for l in ALL_CU if not (l == PLANE and ref in PLANE_STAYS)), pour=True, name='quiet sensor')
+        rule_area(board, outer, ALL_CU, vias=True, name='quiet sensor: no vias')
     # through-hole ground pads (the USB shell, connector lugs) join the pour solidly: they are tied in by
     # track already, and a thermal there has no room for its spokes
     for fp in board.GetFootprints():
         for p in fp.Pads():
             if p.GetNetname() == 'GND' and p.GetAttribute() == pcbnew.PAD_ATTRIB_PTH:
                 p.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
-    for layer, clearance in ((pcbnew.F_Cu, 0.3), (pcbnew.B_Cu, 0.5)):
+    for layer, clearance in ((pcbnew.F_Cu, 0.3), (PLANE, 0.25), (INNER, 0.3), (pcbnew.B_Cu, 0.5)):
         z = pcbnew.ZONE(board)
         z.SetNet(gnd)
         z.SetLayer(layer)
@@ -465,11 +525,42 @@ def stage_pour():
         z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
         board.Add(z)
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
-    # stitch the two pours together on a grid, wherever both are present with room for a via
+    # Stitch the pours together on a grid. A via goes where the ground plane and the show-face pour are both
+    # present and each of the other two layers either has ground there too or has no copper near; never
+    # near a plated or unplated hole of any part (a slot is longer than its pad's centre suggests).
     fills = {}
     for z in board.Zones():
         if not z.GetIsRuleArea() and z.GetNetname() == 'GND':
             fills[z.GetLayer()] = z.GetFilledPolysList(z.GetLayer())
+    copper = {pcbnew.F_Cu: [], INNER: []}          # (x1, y1, x2, y2, half width) of every track and pad there
+    drilled = []
+    for t in board.GetTracks():
+        if t.Type() != pcbnew.PCB_VIA_T and t.GetLayer() in copper:
+            a, b = t.GetStart(), t.GetEnd()
+            copper[t.GetLayer()].append((to_mm(a.x), to_mm(a.y), to_mm(b.x), to_mm(b.y), to_mm(t.GetWidth()) / 2))
+    for fp in board.GetFootprints():
+        for p in fp.Pads():
+            bb = p.GetBoundingBox()
+            box = (to_mm(bb.GetLeft()), to_mm(bb.GetTop()), to_mm(bb.GetRight()), to_mm(bb.GetBottom()))
+            if p.GetDrillSize().x:
+                drilled.append(box)
+            for layer in copper:
+                if p.IsOnLayer(layer):
+                    c = p.GetPosition()
+                    copper[layer].append((to_mm(c.x), to_mm(c.y), to_mm(c.x), to_mm(c.y), math.hypot(box[2] - box[0], box[3] - box[1]) / 2))
+
+    def clear_of(layer, x, y, gap=0.6):
+        for xa, ya, xb, yb, r in copper[layer]:
+            dx, dy = xb - xa, yb - ya
+            L2 = dx * dx + dy * dy
+            u = max(0.0, min(1.0, ((x - xa) * dx + (y - ya) * dy) / L2)) if L2 else 0.0
+            if math.hypot(x - xa - u * dx, y - ya - u * dy) < r + gap:
+                return False
+        return True
+
+    def ring(x, y):
+        return [(x, y)] + [(x + rr * math.cos(a), y + rr * math.sin(a)) for rr in (0.45, 0.75) for a in [k * math.pi / 6 for k in range(12)]]
+
     xs, ys = [p[0] for p in outline], [p[1] for p in outline]
     taken = [(to_mm(t.GetStart().x), to_mm(t.GetStart().y)) for t in board.GetTracks() if t.Type() == pcbnew.PCB_VIA_T]
     added = 0
@@ -477,9 +568,11 @@ def stage_pour():
     while y < max(ys):
         x = min(xs) + 2.0
         while x < max(xs):
-            ring = [(x, y)] + [(x + 0.75 * math.cos(a), y + 0.75 * math.sin(a)) for a in [k * math.pi / 4 for k in range(8)]]
-            if all(f.Contains(vec(px, py)) for f in fills.values() for px, py in ring) and \
-                    all(math.hypot(x - vx, y - vy) > 2.0 for vx, vy in taken):
+            pts = ring(x, y)
+            ok = all(fills[layer].Contains(vec(px, py)) for layer in (PLANE, pcbnew.B_Cu) for px, py in pts)
+            ok = ok and all(all(fills[layer].Contains(vec(px, py)) for px, py in pts) or clear_of(layer, x, y) for layer in copper)
+            ok = ok and not any(x0 - 1.0 < x < x1 + 1.0 and y0 - 1.0 < y < y1 + 1.0 for x0, y0, x1, y1 in drilled)
+            if ok and all(math.hypot(x - vx, y - vy) > 2.0 for vx, vy in taken):
                 via(board, (x, y), gnd)
                 taken.append((x, y))
                 added += 1
@@ -487,7 +580,7 @@ def stage_pour():
         y += STITCH
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     pcbnew.SaveBoard(BOARD, board)
-    print('ground poured on both faces, %d stitching vias' % added)
+    print('ground poured on four layers, %d stitching vias' % added)
 
 
 if __name__ == '__main__':

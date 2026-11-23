@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build the DinoLight board from the schematic's netlist: outline, every footprint placed and linked to
-its schematic symbol, every pad on its net, touch electrodes on the show face, eye hole. No tracks.
+its schematic symbol, every pad on its net, touch electrodes on the show face. No tracks.
 
 Run with KiCad's Python from the project folder, after `python3 tools/schematic.py verify`
 (which writes build/sch/netlist.net):
@@ -38,7 +38,8 @@ GAP = 0.65                                   # between courtyards when packing: 
 mm = pcbnew.FromMM
 
 # ---------------------------------------------------------------- where things go (show-face mm)
-HOLES = {'H1': (27.5, 40.2), 'H2': (134.5, 57.5), 'H3': (207, 44)}      # placeholders until the case is designed
+HOLES = {'H1': (27.5, 40.2), 'H2': (134.5, 57.5)}      # placeholders until the case is designed. The tail has none:
+                                                        # it sticks out of the case (the owner, 2026-11-23)
 BATTERY = (94, 34, 130, 60)                  # keep free of parts
 USB_X, SWITCH_X = 115.0, 101.0               # along the belly flat
 EXPLICIT = {                                 # ref: (x, y, board rotation)
@@ -46,8 +47,9 @@ EXPLICIT = {                                 # ref: (x, y, board rotation)
                                              # clears the eleven touch lanes above it
     'R14': (48.7, 34.2, 180),                # spine data resistor beside the first LED, output towards it
     'J2': (137, 47.8, 90),                   # battery connector, opening towards the battery
-    'J3': (175, 47.2, 0),                    # Qwiic, opening at the underside of the tail
-    'C9': (184, 47.2, 0), 'TP11': (188.5, 47.5, 0),
+    'J3': (170.8, 47.6, 90),                 # Qwiic, opening towards the body so a cable stays inside the case; the
+                                             # 7 mm in front of it is kept free of parts for the plug
+    'C9': (188.5, 40.0, 0), 'TP11': (187.5, 44.0, 0),    # just past the tail end of the LED run and the slider
     'SW3': (19.5, 45.5, 0), 'SW2': (28, 46.9, 0),        # BOOT and RESET in the snout
     'R1': (108.3, 62.4, 90), 'R2': (121.7, 62.4, 90), 'U1': (126, 63.4, 0),
     'U9': (221.0, 25.6, 0), 'C41': (220.3, 28.0, 0),     # temperature / humidity on the tip of the tail
@@ -55,13 +57,16 @@ EXPLICIT = {                                 # ref: (x, y, board rotation)
 }
 # packed clusters: name, rectangle (x0, y0, x1, y1), parts
 CLUSTERS = [
-    ('LED rail switch and module support', (72.2, 40, 92.6, 54.2),
+    ('LED rail switch and module support', (72.2, 40, 91.4, 54.2),     # 91.4: room for the front flipper's touch line beside the battery
      'Q2 Q3 C8 R11 R13 C10 R12 R15 TP5 TP13 TP16 U6 C36 R32 R16 C32 TP12 R34 TP17 R6 R7 C7 R8 R9 TP6 TP7 TP8'),
     ('battery input', (131.0, 35.3, 143.1, 42.6), 'F1 SJ1 SJ2'),
-    ('charger', (143.4, 40, 151.9, 56), 'Q1 U2 R3 C1 C2 R10 R19 TP3 TP4 TP15'),
-    ('regulator, enable', (152.5, 41.5, 166.3, 51.6), 'U3 C3 C4 D23 R4 R5 TP1 TP2 TP14'),
-    ('motion and pressure', (137.8, 56.5, 151.6, 66.5), 'U5 U11 R17 R18 TP9 TP10'),
-    ('compass', (211.0, 33.2, 218.0, 37.9), 'U8'),        # on the upper tail lobe: no LEDs, no touch copper, little current
+    ('charger', (143.4, 40, 151.9, 56), 'Q1 U2 R3 C1 C2 R10 R19 TP3 TP4 TP15 TP9'),   # the I2C test points are here and in the next cluster
+                                                        # because one sat behind the rear-flipper touch pad (layout review)
+    ('regulator, enable', (152.8, 40.5, 162.5, 54.0), 'U3 C3 C4 D23 R4 R5 TP1 TP2 TP14 TP10'),     # clear of the Qwiic plug
+    ('motion and pressure', (137.8, 56.5, 151.6, 66.5), 'U5 U11 R17 R18'),
+    ('compass', (174.2, 45.6, 181.2, 51.4), 'U8'),        # in the tail stem, inside the case (the owner, 2026-11-23), between the
+                                                          # end of the LED run and the Qwiic socket: the far end of the LED rail, where its
+                                                          # current is smallest, and the furthest the case allows from battery, buzzer and USB shell
     ('light sensor', (7.6, 43.8, 12.5, 48.2), 'U10'),     # at the nose; the case gets a hole over it
     ('buzzer drive', (31.5, 43.3, 39.8, 48.6), 'Q4 R35 R36'),
 ]
@@ -153,6 +158,7 @@ def courtyard(fp):
 def main():
     comps, nets = read_netlist()
     board = pcbnew.NewBoard(OUT)
+    board.SetCopperLayerCount(4)                 # parts side / ground plane / inner signals / show face
     ds = board.GetDesignSettings()
     ds.m_MinClearance = mm(0.15)                 # JLCPCB's comfortable working figure; the LGA and QFN need it
     ds.m_TrackMinWidth = mm(0.127)
@@ -229,7 +235,8 @@ def main():
         if math.hypot(p1.x - vdd.x, p1.y - vdd.y) > mm(2.02):                 # pad 1 (supply) must be the near one
             cap.SetOrientationDegrees(rot - 90)
 
-    # ---- eye: one reverse-mount LED shining through its own slot to the show face, capacitor beside it
+    # ---- eye: one top-emitting LED on the parts side, shining through a hole in the printed case; capacitor beside
+    #      it. No hole in the board. The snout touch pad still keeps 4.6 mm clear of it (below).
     bx, by = B(ex, ey)
     put('D21', bx, by, 0)
     put('C31', *B(33.3, 41.0), 90)
@@ -341,7 +348,7 @@ def main():
         print('cluster %-56s %4.0f mm2 of courtyard in %4.0f mm2' % (title, used, (bx1 - bx0) * (by1 - by0)))
 
     # ---- touch electrodes on the show face (KiCad back copper, under solder mask), each on its net,
-    #      kept 1 mm inside the board edge and clear of the eye hole and mounting holes
+    #      kept 1 mm inside the board edge and clear of the eye LED and mounting holes
     inset = pcbnew.SHAPE_POLY_SET()
     inset.AddOutline(chain(mo.OUTLINE))
     inset.Inflate(-mm(1.0), pcbnew.CORNER_STRATEGY_ROUND_ALL_CORNERS, mm(0.01))
@@ -349,6 +356,14 @@ def main():
         hole = pcbnew.SHAPE_POLY_SET()
         hole.AddOutline(chain([(hx + hr * math.cos(2 * math.pi * k / 36), hy + hr * math.sin(2 * math.pi * k / 36)) for k in range(36)]))
         inset.BooleanSubtract(hole)
+    for z in placed['U4'].Zones():               # no touch copper in the module's antenna keep-out, or within 0.3 mm of it
+        if z.GetIsRuleArea():
+            bb_ = z.GetBoundingBox()
+            x0_, x1_ = MIRROR - pcbnew.ToMM(bb_.GetRight()) - 0.3, MIRROR - pcbnew.ToMM(bb_.GetLeft()) + 0.3
+            y0_, y1_ = pcbnew.ToMM(bb_.GetTop()) - YOFF - 0.3, pcbnew.ToMM(bb_.GetBottom()) - YOFF + 0.3
+            keep = pcbnew.SHAPE_POLY_SET()
+            keep.AddOutline(chain([(x0_, y0_), (x1_, y0_), (x1_, y1_), (x0_, y1_)]))
+            inset.BooleanSubtract(keep)
     stems = ['SPINE%d' % i for i in range(1, 9)] + ['SNOUT', 'FLIP_F', 'FLIP_R', 'TAIL']
     ref_to_stem = {'E%d' % (i + 1): s_ for i, s_ in enumerate(stems)}
 

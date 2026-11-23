@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Draw part of the board as a picture, for looking at routing: tools/view_region.py x0 y0 x1 y1 out.png [drc.json]
-Coordinates are BOARD mm (parts side as KiCad shows it). Parts-side copper red, show-face copper blue,
+Coordinates are BOARD mm (parts side as KiCad shows it). Parts-side copper red, inner signal layer orange,
+show-face copper blue,
 vias green, pads grey with their net names, open connections from a DRC report as yellow lines.
 Needs KiCad's Python and rsvg-convert."""
 import json
@@ -53,7 +54,7 @@ for z in board.Zones():
         o = z.Outline().Outline(0)
         s.append('<polygon points="%s" fill="#26a" fill-opacity="0.25" stroke="none"/>' % ' '.join(
             '%.1f,%.1f' % (X(mm(o.CPoint(i).x)), Y(mm(o.CPoint(i).y))) for i in range(o.PointCount())))
-for layer, colour in ((pcbnew.B_Cu, '#39f'), (pcbnew.F_Cu, '#e33')):
+for layer, colour in ((pcbnew.B_Cu, '#39f'), (pcbnew.In2_Cu, '#fa0'), (pcbnew.F_Cu, '#e33')):
     for t in board.GetTracks():
         if t.Type() == pcbnew.PCB_VIA_T or t.GetLayer() != layer:
             continue

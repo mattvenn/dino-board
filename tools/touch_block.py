@@ -42,12 +42,15 @@ W = 0.13                                      # JLCPCB's minimum on two layers i
 
 # long pad lines: (resistor, BOARD x of its run up from the resistor, lane depth, show-face x where it leaves
 # its lane; None = at the tail end of the spine)
-LONG = [('R29', XC - 5.1, 9.5, None), ('R30', XC - 5.4, 9.8, 150.0), ('R31', XC - 5.7, 10.1, 95.0)]
+LONG = [('R29', XC - 5.1, 9.5, None), ('R30', XC - 5.4, 9.8, 150.0), ('R31', XC - 5.7, 10.1, 93.0)]   # 93: 1 mm clear of the battery area
 LONG_STUB_DEPTH = 12.7                        # where each stub ends: below the band and its no-via strip
 # A grounded guard track just below the deepest touch lane, so the I2C bus and everything else the routers
 # lay along the body stays off the touch lines. It starts past the module's corner pad (BOARD x) and is
 # broken where a long line leaves its lane.
 GUARD_DEPTH, GUARD_W, GUARD_START_X, GUARD_GAP = 10.5, 0.2, MIRROR - 57.0, 0.7
+# No other track on the parts side within this of the tail line's run from its lane to its pad (layout review:
+# left to the routers it ran beside the I2C bus down the tail stem).
+STEM_CLEAR = 0.6
 
 
 def placements():

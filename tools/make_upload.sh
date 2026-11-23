@@ -1,7 +1,7 @@
 #!/bin/bash
 # Export the JLCPCB upload set from dinolight.kicad_pcb into fab/<name>/:
 #   <name>_gerbers.zip, bom_jlcpcb.csv, cpl_jlcpcb.csv
-# Usage: tools/make_upload.sh <name>       e.g. tools/make_upload.sh draft2
+# Usage: tools/make_upload.sh <name>       e.g. tools/make_upload.sh draft3      (four copper layers)
 # The placement file comes from JLCPCB's own footprints (jlc_cpl.py from the pcb-for-assembly skill).
 set -e
 cd "$(dirname "$0")/.."
@@ -13,7 +13,7 @@ JLC_CPL="$HOME/.claude/skills/pcb-for-assembly/scripts/jlc_cpl.py"
 OUT="fab/$NAME"
 rm -rf "$OUT"
 mkdir -p "$OUT/gerbers"
-"$K" pcb export gerbers --layers F.Cu,B.Cu,F.Paste,B.Paste,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts \
+"$K" pcb export gerbers --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,B.Paste,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts \
     --subtract-soldermask --no-x2 -o "$OUT/gerbers/" dinolight.kicad_pcb > /dev/null
 "$K" pcb export drill --format excellon --excellon-separate-th --excellon-units mm --excellon-zeros-format decimal \
     -o "$OUT/gerbers/" dinolight.kicad_pcb > /dev/null
