@@ -31,6 +31,8 @@ else
 fi
 "$KPY" tools/route_board.py ses 2>&1 | quiet
 "$KPY" tools/patch_route.py --rounds 14 2>&1 | quiet            # what the autorouter left open, and its rule breaks
+"$KPY" tools/clear_touch_neighbours.py 2>&1 | quiet             # what the autorouter laid too near a touch line
+"$KPY" tools/patch_route.py --rounds 8 2>&1 | quiet             # ...laid again at the touch lines' spacing
 "$KPY" tools/patch_route.py --tidy 2>&1 | quiet                 # dead ends, including unused scripted stubs
 "$KPY" tools/patch_route.py --rounds 6 2>&1 | quiet             # anything the tidying opened
 "$KPY" tools/patch_route.py --ground --rounds 6 2>&1 | quiet    # every ground pad tied in by track
@@ -38,6 +40,8 @@ fi
 "$KPY" tools/patch_route.py --plane-vias 1.5 2>&1 | quiet       # a via to the ground plane beside every ground pad
 "$KPY" tools/patch_route.py --rounds 4 2>&1 | quiet             # anything those took the room of
 "$KPY" tools/patch_route.py --fatten 2>&1 | quiet                # wider supply tracks on the half-ounce inner layer
+"$KPY" tools/patch_route.py --rounds 3 2>&1 | quiet             # in case widening left anything to re-lay
+"$KPY" tools/clear_touch_neighbours.py 2>&1 | quiet             # should report nothing: a check
 "$KPY" tools/trim_dangling.py 2>&1 | quiet                      # KiCad's own list of dead ends, safely
 cp dinolight.kicad_pcb $W/before_pour.kicad_pcb
 "$KPY" tools/route_board.py pour 2>&1 | quiet                   # ground plane, pours on the other layers, stitching vias

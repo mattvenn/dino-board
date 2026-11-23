@@ -45,6 +45,17 @@ LCOST = tuple(1.0 if lid == pcbnew.F_Cu else (4.0 if lid == pcbnew.B_Cu and NL >
 LAYER_NAMES = {pcbnew.F_Cu: 'F.Cu', pcbnew.In1_Cu: 'In1.Cu', pcbnew.In2_Cu: 'In2.Cu', pcbnew.B_Cu: 'B.Cu'}
 KICAD_CLI = '/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli'
 SOFT, SOFT_MINE = 15.0, 45.0            # price per grid cell of crossing an autorouted track, or one of ours
+TOUCH_GAP = 0.5                         # between a touch line and any track or via that carries a signal (layout review:
+                                        # the buzzer line ran 0.23 mm beside the snout's for 7 mm). Ground and the supplies
+                                        # are exempt: they add a fixed capacitance, not noise. Pads keep the board's clearance.
+
+
+def touchy(net):
+    return net.startswith('PAD_')
+
+
+def steady(net):
+    return net == 'GND' or net in rb.POWER_NETS
 
 
 def key(t):
@@ -138,6 +149,11 @@ def collect_static(board):
     ant = rb.antenna_area(board)
     out.append((ALL, '', 'poly', (ant, None), 'keepT', 0.0, None))
     out.append((ALL, '', 'poly', (ant, None), 'keepV', 0.0, None))
+    # no touch line under the battery, or within 0.6 mm of its area: a foil pouch lying on one reads as a touch
+    import build_board as bb
+    x0, y0, x1, y1 = bb.BATTERY
+    (bx0, by0), (bx1, by1) = rb.B(x1 + 0.6, y0 - 0.6), rb.B(x0 - 0.6, y1 + 0.6)
+    out.append((ALL, '', 'poly', ([(bx0, by0), (bx1, by0), (bx1, by1), (bx0, by1)], None), 'keepTouch', 0.0, None))
     # keep-outs that come with a footprint (the SHT40's no-copper area under its body, the module's antenna)
     for fp in board.GetFootprints():
         for z in fp.Zones():
@@ -224,7 +240,15 @@ def route(board, shapes, outline, net, pa, pb, la, lb, width, margin, allow_rip,
     own = [np.zeros((H, W), bool) for _ in ALL]
     core = [np.zeros((H, W), bool) for _ in ALL]
     through = np.zeros((H, W), bool)
-    pads_own, soft_shapes, own_segs = [], [], []
+    pads_own, soft_shapes, soft_gap, own_segs = [], [], [], []
+
+    def gap_to(n, cls):
+        """clearance wanted between this net's new copper and a track or via of net n"""
+        if cls in ('track', 'via') and n and ((touchy(n) and not touchy(net) and not steady(net)) or
+                                               (touchy(net) and not touchy(n) and not steady(n))):
+            return max(clr, TOUCH_GAP)
+        return clr
+
     M = 0.8
     sl, d = g.poly_dist(outline, 0.0)
     off = np.ones((H, W), bool)
@@ -255,6 +279,11 @@ def route(board, shapes, outline, net, pa, pb, la, lb, width, margin, allow_rip,
                 blockT[L][sl] |= d < width / 2 + EPS
         elif cls == 'keepV':
             blockV[sl] |= d < VIA / 2 + EPS
+        elif cls == 'keepTouch':
+            if touchy(net):
+                for L in layers:
+                    blockT[L][sl] |= d < width / 2 + EPS
+                blockV[sl] |= d < VIA / 2 + EPS
         elif n == net:
             # a new via keeps clear of this net's own holes too: 0.25 mm from a plated pad's copper (its
             # hole or slot is inside that), hole to hole from a via; and when dropping a via to the plane,
@@ -276,15 +305,18 @@ def route(board, shapes, outline, net, pa, pb, la, lb, width, margin, allow_rip,
                 blockV[sl] |= d < VIA / 2 + 0.1       # a via stands 0.1 mm off the pad it serves, not against it
                 pads_own.append((layers[0], data))
         elif price and allow_rip:
+            c_ = gap_to(n, cls)
             soft_shapes.append(shape)
+            soft_gap.append(c_)
             for L in layers:
-                np.maximum(softT[L][sl], np.where(d < clr + width / 2 + EPS, price, 0).astype(np.float32), out=softT[L][sl])
+                np.maximum(softT[L][sl], np.where(d < c_ + width / 2 + EPS, price, 0).astype(np.float32), out=softT[L][sl])
             hole = 0.25 + DRILL / 2 + EPS if cls == 'via' else 0.0
-            np.maximum(softV[sl], np.where(d < max(clr + VIA / 2 + EPS, hole), price, 0).astype(np.float32), out=softV[sl])
+            np.maximum(softV[sl], np.where(d < max(c_ + VIA / 2 + EPS, hole), price, 0).astype(np.float32), out=softV[sl])
         else:
+            c_ = gap_to(n, cls)
             for L in layers:
-                blockT[L][sl] |= d < clr + width / 2 + EPS
-            blockV[sl] |= d < clr + VIA / 2 + EPS
+                blockT[L][sl] |= d < c_ + width / 2 + EPS
+            blockV[sl] |= d < c_ + VIA / 2 + EPS
             if cls in ('via', 'pth', 'hole'):                       # hole to hole
                 blockV[sl] |= d < 0.25 + DRILL / 2 + EPS
     for b_ in blockT:
@@ -437,9 +469,9 @@ def route(board, shapes, outline, net, pa, pb, la, lb, width, margin, allow_rip,
             tt = np.clip(((P[:, 0] - xa) * dx + (P[:, 1] - ya) * dy) / L2, 0, 1) if L2 else 0
             return np.hypot(P[:, 0] - xa - tt * dx, P[:, 1] - ya - tt * dy)
 
-        for layers, n, kind, (xa, ya, xb, yb, r), cls, price, item in soft_shapes:
-            hit = any((dist(pts[L], xa, ya, xb, yb) - r < clr + width / 2 + EPS).any() for L in layers)
-            hit = hit or (dist(vp, xa, ya, xb, yb) - r < max(clr + VIA / 2 + EPS, 0.25 + DRILL / 2 + EPS if cls == 'via' else 0)).any()
+        for (layers, n, kind, (xa, ya, xb, yb, r), cls, price, item), c_ in zip(soft_shapes, soft_gap):
+            hit = any((dist(pts[L], xa, ya, xb, yb) - r < c_ + width / 2 + EPS).any() for L in layers)
+            hit = hit or (dist(vp, xa, ya, xb, yb) - r < max(c_ + VIA / 2 + EPS, 0.25 + DRILL / 2 + EPS if cls == 'via' else 0)).any()
             if hit:
                 board.RemoveNative(item)
                 ripped += 1
@@ -628,9 +660,44 @@ def drop(board, scripted, bad, ground=False):
 def fatten_supplies(board, scripted):
     """Supply tracks on the inner layer are half-ounce copper: make each as wide as KiCad's DRC allows, trying
     0.8, 0.6, 0.4, 0.25 and 0.2 mm in turn. A track never ends up wider than DRC accepts, whatever it was."""
-    inner = [t for t in board.GetTracks() if t.Type() != pcbnew.PCB_VIA_T and t.GetLayer() == rb.INNER
-             and t.GetNetname() in rb.POWER_NETS and key(t) not in scripted]
-    todo = list(inner)
+    def supply_tracks():
+        return [t for t in board.GetTracks() if t.Type() != pcbnew.PCB_VIA_T and t.GetLayer() == rb.INNER
+                and t.GetNetname() in rb.POWER_NETS and key(t) not in scripted]
+
+    # cut long tracks into pieces of 2 mm or so first, so that one tight spot does not hold a whole run at 0.4 mm
+    for t in supply_tracks():
+        a, b = t.GetStart(), t.GetEnd()
+        ax, ay, bx, by = to_mm(a.x), to_mm(a.y), to_mm(b.x), to_mm(b.y)
+        n = int(math.dist((ax, ay), (bx, by)) / 2.0)
+        if n >= 2:
+            pts = [(round(ax + (bx - ax) * k / n, 4), round(ay + (by - ay) * k / n, 4)) for k in range(n + 1)]
+            w, net_, layer = to_mm(t.GetWidth()), t.GetNet(), t.GetLayer()
+            board.RemoveNative(t)
+            for p_, q_ in zip(pts, pts[1:]):
+                rb.track(board, p_, q_, w, net_, layer)
+    inner = supply_tracks()
+    # not beside a mounting hole's keep-out or the antenna's: those rule areas go on with the pours, after this
+    # step's DRC, and a widened track's edge would end up inside one
+    holes = [(to_mm(fp.GetPosition().x), to_mm(fp.GetPosition().y)) for ref, fp in rb.fps(board).items()
+             if ref.startswith('H') and ref[1:].isdigit()]
+    ant = rb.antenna_area(board)
+    ax0, ay0, ax1, ay1 = min(p[0] for p in ant), min(p[1] for p in ant), max(p[0] for p in ant), max(p[1] for p in ant)
+
+    def near_keepout(t):
+        a, b = t.GetStart(), t.GetEnd()
+        for k in (0.0, 0.5, 1.0):
+            x, y = to_mm(a.x) + (to_mm(b.x) - to_mm(a.x)) * k, to_mm(a.y) + (to_mm(b.y) - to_mm(a.y)) * k
+            if any(math.dist((x, y), h) < rb.HOLE_KEEP + 0.5 for h in holes) or \
+                    (ax0 - 0.5 < x < ax1 + 0.5 and ay0 - 0.5 < y < ay1 + 0.5):
+                return True
+        return False
+
+    todo = []
+    for t in inner:
+        if near_keepout(t):
+            t.SetWidth(min(t.GetWidth(), mm(rb.W_POWER)))
+        else:
+            todo.append(t)
     for width in (0.8, 0.6, 0.4, 0.25, 0.2):
         for t in todo:
             t.SetWidth(mm(width))
@@ -643,7 +710,8 @@ def fatten_supplies(board, scripted):
         for v in json.load(open(report))['violations']:
             if v['type'] in ('clearance', 'hole_clearance', 'shorting_items', 'tracks_crossing', 'copper_edge_clearance', 'items_not_allowed'):
                 bad += [(i['pos']['x'], i['pos']['y']) for i in v['items']]
-        hit = lambda t: any(abs(to_mm(q.x) - x) < 0.002 and abs(to_mm(q.y) - y) < 0.002 for q in (t.GetStart(), t.GetEnd()) for x, y in bad)
+        # KiCad reports a track by where it starts
+        hit = lambda t: any(abs(to_mm(t.GetStart().x) - x) < 0.002 and abs(to_mm(t.GetStart().y) - y) < 0.002 for x, y in bad)
         todo = [t for t in todo if hit(t)]
         if not todo:
             break

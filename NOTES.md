@@ -13,8 +13,9 @@ design work and are open to change.
 
 ## State
 
-2026-11-23: ROUTED ON FOUR LAYERS. The layout was reviewed once, then changed and re-routed; the present
-route has not been independently re-read. NOT FOR ORDERING.
+2026-11-23: ROUTED ON FOUR LAYERS. The layout has had an independent review and, after the owner's changes
+and a fresh route, an independent re-read with no blocker; the re-read's fixes are in but have not
+themselves been independently read. NOT FOR ORDERING: see NOT DONE below.
 
 - Architecture agreed by the owner (2026-11-22). Parts chosen and checked at JLCPCB; the sensors and buzzer
   were added on 2026-11-22 at the owner's request and checked the same way.
@@ -29,7 +30,8 @@ route has not been independently re-read. NOT FOR ORDERING.
   schematic parity: 0 unconnected items, no shorts, no clearance errors. `board_audit.py` run; see
   "Routing" for what it found and what was done.
 - Layout review (the skill's review 2) by an independent reader: done on the first four-layer route, 16
-  findings, all decided (see Reviews). The board has been changed and re-routed since: re-read pending.
+  findings, all decided. Re-read of the re-routed board and of `fab/draft3`: done, no blocker, three
+  should-fix, acted on (see Reviews).
 - Changes asked for by the owner on 2026-11-23 and made: eye LED is an ordinary top-emitting part; 18 spine
   LEDs, slider shortened to match; no tail mounting hole; Qwiic socket opens into the case; compass inside
   the case. None of these has had an independent netlist or layout read.
@@ -47,11 +49,13 @@ route has not been independently re-read. NOT FOR ORDERING.
   the preview at: D23 (polarised); J1, J2, J3, SW1, SW2, U4 (matched by position); and U9, where
   JLCPCB's footprint has a fifth, centre pad that the KiCad footprint (Sensirion's no-centre-pad pattern)
   leaves out, so its rotation could not be confirmed from the pads. The new eye LED D21 matched without
-  comment. The set has not had the release review.
+  comment. Regenerated after the re-read's fixes, with U9 placed at its footprint origin. The re-read
+  checked the first version of this set (layers, drill, BOM, every rotation); the regenerated files have
+  not been read again.
 - Git: branch `main`, remote `origin`.
 - Tools: kicad-cli 10.0.8 runs with `KICAD_DOCUMENTS_HOME=<project>/kicad-user`.
 - NOT DONE: the owner's read of the schematic; mechanical sign-off of the placement and the mounting-hole
-  positions (placeholders); an independent re-read of the present route; silkscreen and show-face
+  positions (placeholders); a read of the fixes made after the re-read; silkscreen and show-face
   artwork; JLCPCB's edge rails and tab positions; the release review; JLCPCB's placement preview.
 
 ## Deadline
@@ -99,12 +103,12 @@ route has not been independently re-read. NOT FOR ORDERING.
 | Decoupling capacitors are placed with their chip as one block (regulator, charger, accelerometer, supervisor) | The first placement packed parts by size, which left these capacitors 6 to 10 mm from the pins they serve (found by `board_audit.py`) | mine |
 | No copper within 2.8 mm of a mounting hole's centre, either face | Room for an M2.5 screw head or a case boss. The hole positions are still placeholders | mine, open |
 | Sensors added: LSM6DS3TR-C (accelerometer + gyroscope, replaces the LIS2DH12), QMC5883P (compass), SHT40 (temperature + humidity), LTR-303ALS (light), BMP580 (pressure), and an MLT-5020 buzzer | The owner, 2026-11-22: "add them all - worst case, we can not place them". Nine motion axes from two chips for $2.90; single-chip nine-axis parts at JLCPCB are $10 to $20 or out of stock | owner |
-| Temperature sensor on the tip of the tail, compass in the tail stem inside the case, light sensor at the nose, buzzer in the jaw | Owner: the tail sticks out of the case as a thermometer; only the temperature sensor and the tail touch pad are outside it (2026-11-23: "compass inside the case, I think that's better and safer"); the light sensor goes at the nose. Mine: the compass sits between the end of the LED run and the Qwiic socket, at board (61.5, 57.5): the far end of the LED rail, where its current is smallest (the last two LEDs at full white would add about 1.4 uT there, against the Earth's 25 to 65 uT), about 50 mm from the battery and 145 mm from the buzzer's magnet. It was on the upper tail lobe until then. No vias and no show-face or In2 tracks within 2 mm of its centre; the ground plane carries on under it, since a hole there would cut the tail's ground off | owner / mine |
+| Temperature sensor on the tip of the tail, compass in the tail stem inside the case, light sensor at the nose, buzzer in the jaw | Owner: the tail sticks out of the case as a thermometer; only the temperature sensor and the tail touch pad are outside it (2026-11-23: "compass inside the case, I think that's better and safer"); the light sensor goes at the nose. Mine: the compass sits between the end of the LED run and the Qwiic socket, at board (61.7, 57.65): the far end of the LED rail, where its current is smallest (the last two LEDs at full white would add about 1.4 uT there, against the Earth's 25 to 65 uT), about 50 mm from the battery and 145 mm from the buzzer's magnet. It was on the upper tail lobe until then. No vias and no show-face or In2 tracks within 2 mm of its centre; the ground plane carries on under it, since a hole there would cut the tail's ground off | owner / mine |
 | Buzzer: 5 mm MLT-5020 from 3.3 V through R35 and R37 in parallel (50 ohms), switched by an AO3400A, 1N4148W across it | The 8.5 mm buzzer does not fit anywhere far from the compass. The resistors cap the current at 53 mA if firmware leaves the pin high (71 mW in each 125 mW part); two basic 0805s because no 1206 of a useful value is a basic part. The 2N7002 is not specified below 5 V gate drive | mine, after review 4 |
 | Gate pull-downs R12 (LED rail switch) and R36 (buzzer) are 4.7k, were 100k | CircuitPython puts a 45k pull-up on every pin the program has not claimed (at start-up, at the prompt, after a crash). Against 100k that puts 2.3 V on the gate: the LED rail and the buzzer would be half on. 4.7k holds it at 0.3 V | mine, after review 4 |
 | I2C pull-ups 2.2k, were 4.7k | The bus now runs nose to tail with six devices and the Qwiic socket | mine |
 | A grounded guard track below the touch lanes, the length of the body | Keeps the I2C bus and anything else the routers lay along the body off the long touch lines | mine, after review 4 |
-| Qwiic connector on the I2C bus, in the tail stem, opening towards the body | Add-on projects later; part used before. The owner, 2026-11-23: it must not open downwards (nothing should dangle from the toy); an add-on goes inside the case, which is then closed again; and it can be dropped if it becomes a routing problem. The 7 mm in front of it is kept free of parts for the plug | owner |
+| Qwiic connector on the I2C bus, in the tail stem, opening towards the body | Add-on projects later; part used before. The owner, 2026-11-23: it must not open downwards (nothing should dangle from the toy); an add-on goes inside the case, which is then closed again; and it can be dropped if it becomes a routing problem. 5.6 mm in front of it is free of parts for the plug | owner |
 | 18 spine LEDs (D1 to D18), not 20; the touch slider and the LED ground strip stop with them | The owner, 2026-11-23: the tail sticks out of the case, and the case ends about where the last two LEDs were. The slider is shortened with the LEDs because the owner wants touch and LEDs to cover the same run. The 18 keep the positions and 7.72 mm pitch they had; D19, D20, C29 and C30 no longer exist (the eye keeps the names D21 and C31) | owner |
 | No mounting hole in the tail; two holes left (snout H1, belly H2) | The owner, 2026-11-23: the tail has nothing to mount to | owner |
 | The battery is held by the printed case, not tied to the board; no slots in the board | Mine, offered to the owner on 2026-11-23 when he asked (zip-tie or case); not yet answered. Slots would show on the bare face and get in the way of routing. The 36 x 26 mm area stays free of parts so the cell can lie on the board; tracks run under it on every layer, touch lines excepted | mine, open |
@@ -415,6 +419,40 @@ the IPC-2221 formula, MPR121 behaviour.
 The board was re-routed from scratch after these fixes (placement changed), so the result needs its own
 rule check, audit and a re-read of what changed: see State.
 
+### Re-read of the re-routed board and the draft3 upload set, 2026-11-23 (fresh independent reader)
+
+Read the board as pushed in commit e8cc24e (third four-layer route) and `fab/draft3` as first made. Verdict:
+no blocker; three should-fix. The reader's numbers were measured on its own copy; I have not re-measured them.
+
+| # | Level | Finding | Decision |
+|---|---|---|---|
+| S1 | SHOULD | LED current through long 0.4 mm tracks on In2: +BATT Q1 to Q2 83 mm (225 milliohm), VLED feed 36 mm (112 milliohm), no parallel path; about 42 C rise at 0.7 A by the IPC formula (from memory). The widening step had widened almost nothing: it gave up on a whole track if any point was tight | Partly fixed: `--fatten` now cuts tracks into 2 mm pieces first. Supply tracks on In2 are now 107 mm at 0.8 mm, 17 mm at 0.6 mm, 144 mm at 0.4 mm (+BATT: 39 mm at 0.8, 48 at 0.4; VLED: 19 at 0.8, 24 at 0.4). Not re-measured as resistance. Still open for the owner: 1 oz inner copper; keep the firmware cap of 0.3 A |
+| S1b | SHOULD | The LED rail is fed through C11's pad and a 0.25 mm neck 2.9 mm long (5.8 milliohm, about 6 C at 0.7 A); the rail's own head end is a 7.5 mm dead spur | Left: thermally fine by the reader's figures. Untidy; to tidy if the head end is routed again |
+| S1c | SHOULD | All battery return current through one ground via at SJ2.1 | Fixed: two more ground vias at SJ2.1 |
+| S2 | SHOULD | U9's placement coordinate 0.16 mm off: `jlc_cpl.py` paired JLCPCB's centre pad with pad 2. Rotation 0 is right (JLCPCB pads 1 to 4 land on SDA, SCL, +3V3, GND) | Fixed in `tools/make_upload.sh`: U9 is placed at its footprint origin, (19.000, -35.600) |
+| S3 | SHOULD | Signal nets beside touch lines outside the lanes: BUZZ 0.23 mm from the snout line for 7 mm on In2; TOUCH_IRQ, CHG_STAT_5V, SPINE_DATA and several vias at 0.2 to 0.4 mm. The front-flipper line ran 0.75 mm outside the battery area for 18 mm, then 0.75 mm inside it for 2.2 mm | Fixed: `patch_route.py` now keeps 0.5 mm between a touch line and any track or via of a signal net (ground and supplies exempt; pads keep 0.15 mm), and keeps touch lines 0.6 mm outside the battery area. `tools/clear_touch_neighbours.py` took out 53 offending pieces, which were laid again; it now finds none. To make room at the compass, the tail line's run to its pad starts at its lane's end instead of a stub below the band |
+| N1 | NOTE | Under U11: the 3.3 V link pad 1 to pad 6 is 0.227 mm from pads 2 and 7, no current, not a bridging risk. From the reader's memory, Bosch and ST advise against copper under LGA sensors because of stress offsets | Left: the pressure reading may carry a small fixed offset. A toy |
+| N5 | NOTE | Copper behind touch pads with no plane between: the two buttons' pads behind the snout pad; R18.2 (SCL) overlaps the rear-flipper pad by 0.36 mm2; 17 mm of the snout line on In2 lies in the pour-free moat and senses like the pad | Left; known weakness (see Placement). The routes near the snout changed again after the re-read |
+| N6 | NOTE | Pieces of ground fill on one via each (three on In2, several on the parts side); none with no via | Left |
+| N7 | NOTE | One ground via inside module pad U4.61 at (176.46, 56.78); 64 vias 0.10 to 0.15 mm from their own pad, mask web 0.1 mm | Left. Ask JLCPCB's DFM if it objects |
+| N8 | NOTE | R10's pad is 0.55 mm from the outline at (89.1, 65.3) | Left; keep panel tabs away from there |
+| N9 | NOTE | Two BOM lines share C318884 (RESET, BOOT). Inner layers are named .g1 and .g2: check in JLCPCB's viewer that In1, the plane, is layer 2 | For the owner at upload |
+| N10 | NOTE | The cached JLCPCB / EasyEDA footprint files (`draft/.jlc_cache`) carry a licence notice addressed to AI tools, asking that outputs citing the library credit "JLCEDA/EasyEDA Official Library" and link lceda.cn and easyeda.com | Not acted on; put to the owner |
+
+Found right by the reader: finding 1 of the first review (no via in or against a J1 slot; smallest hole-to-hole
+0.39 mm); all eleven touch lines in their lanes; the eye LED footprint against its datasheet, and its nets;
+the compass's pins and surroundings; J3's pin order (1 GND, 2 3V3, 3 SDA, 4 SCL) and direction, with 5.6 mm
+clear in front; the tail's ground (In1 solid through the stem); In1 cover 94 to 99 % under the module,
+regulator, charger and battery; the Gerbers (each copper layer compared with the board, inner layers present
+and not swapped; drill counts agree); the BOM (every fitted part once, every part number as in the table);
+and every rotation in the placement file, by laying JLCPCB's own footprint at the file's position and
+rotation and comparing pad numbers and pin names with the board's nets. What that does not prove: that
+JLCPCB's reels are oriented as its library draws them, and its rotation sign (from the reader's memory).
+The placement preview remains the last check, especially the side LEDs, D21, U9 and J2.
+
+The fixes above changed the routing round the head, the tail stem and the battery corner after the re-read.
+Those changes have been rule-checked and audited, not independently read.
+
 ## Placement (2026-11-23), no mechanical sign-off yet
 
 Where things are, seen from the parts side (head on the right):
@@ -492,18 +530,18 @@ finish with those last changes.
 
 The board as it stands:
 
-- 155 footprints. Tracks: 3724 mm on the parts side, 978 mm on In2, 210 mm on the show face (170 mm of
-  that is the scripted ground chain under the LEDs; 40 mm is signal). 429 vias, 248 of them ground,
-  99 of those stitching.
-- Supply tracks on In2 (half-ounce copper): none under 0.4 mm. +BATT 88 mm, VBUS 58 mm, +3V3 65 mm,
-  VLED 47 mm, mostly at 0.4 mm, 30 mm in all at 0.6 or 0.8 mm. See layout-review finding 3: 1 oz inner
-  copper on the order form would halve their heating.
+- 155 footprints. Tracks: 3689 mm on the parts side, 1050 mm on In2, 236 mm on the show face (170 mm of
+  that is the scripted ground chain under the LEDs; 66 mm is signal). 444 vias, 252 of them ground,
+  95 of those stitching.
+- Supply tracks on In2 (half-ounce copper): 107 mm at 0.8 mm, 17 mm at 0.6 mm, 144 mm at 0.4 mm, and one
+  2.9 mm piece of VBUS at 0.25 mm. +BATT 88 mm (39 at 0.8), +3V3 81 mm (37 at 0.8), VBUS 51 mm, VLED 47 mm
+  (19 at 0.8). See the re-read, S1: 1 oz inner copper on the order form would halve their heating.
 - DRC with schematic parity: 0 unconnected, no shorts, no clearance errors. Violations left, all looked at:
   1 starved thermal (U5.6 reaches the parts-side pour by one spoke; it is also tied by track);
-  9 dangling track ends: three are the open ends of the guard track (by design); two are unused ends of
+  10 dangling track ends: three are the open ends of the guard track (by design); two are unused ends of
   the touch controller's scripted pick-up stubs (SCL 0.8 mm, TOUCH_IRQ 1.1 mm); one is a 7.5 mm spur of
   VLED left on the parts side at board (186.8, 44.9) when the feed was re-routed (harmless, untidy);
-  three are fragments under 0.1 mm;
+  four are fragments under 0.1 mm;
   20 silkscreen items (the silkscreen is not done);
   2 "does not match library" (a pad angle stored as 360 instead of 0: layout review, finding 16).
 - `board_audit.py --hole-radius 2.6` (output in `build/pcb/audit.txt`): holes 0; floating 0.
@@ -519,10 +557,10 @@ The board as it stands:
 - The guard track is joined to ground only where the parts-side pour meets it: it carries no current.
 - Seen on the show face: two small bare squares in the ground pour, one over the compass (tail stem) and
   one at the temperature sensor (tail tip), where pour is kept away from them.
-- NOT DONE on this route: an independent re-read. The layout review above read the first four-layer
-  route; since then the board was re-placed (18 LEDs, compass, Qwiic, eye LED, test points) and
-  re-routed from scratch with the review's fixes in the tools. Its findings 5, 10, 11 and 12 need
-  looking at again on this board.
+- Independent reading: the first layout review read the first four-layer route; the re-read (see Reviews)
+  read the third. The board in the repository is the third route with the re-read's fixes applied by
+  hand-run commands (`clear_touch_neighbours.py`, `patch_route.py` rounds, ground, plane vias, two vias at
+  SJ2.1, `--fatten`, pour): rule-checked and audited, not independently read since.
 
 ## Outline
 
@@ -557,7 +595,7 @@ The board as it stands:
   inside, at board (61.5, 57.5). Keep magnets (a magnetic catch, a speaker)
   away from the tail.
 - Qwiic socket J3 at board (69.2, 57.6) opens towards the head: leave room in the case for its plug and cable
-  over board x 70 to 78, and somewhere for an add-on board to sit.
+  over board x 72 to 78 (5.6 mm clear of parts in front of it), and somewhere for an add-on board to sit.
 - Battery: a pocket in the case holds the cell over the area marked on the board (no ties, no slots).
 - Fixing the board to the case is undecided (the owner, 2026-11-22: press fit has no loose small parts, but
   what goes in can be pulled out). The board has two 2.7 mm (M2.5) holes, H1 in the snout and H2 behind the

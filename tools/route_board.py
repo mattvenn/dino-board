@@ -258,7 +258,8 @@ def touch_block(board, f):
         entry = B(*mo.at(mo.SLIDER, s0, depth)[:2])
         pts = [start, (xv, start[1]), (xv, entry[1])]
         pts += [B(*mo.at(mo.SLIDER, s0 + (s1 - s0) * q / n, depth)[:2]) for q in range(n + 1)]
-        pts.append(B(*mo.at(mo.SLIDER, s1, tb.LONG_STUB_DEPTH)[:2]))
+        if leave is not None:                 # the tail line has no stub: tail_link() takes it on from the lane's end
+            pts.append(B(*mo.at(mo.SLIDER, s1, tb.LONG_STUB_DEPTH)[:2]))
         path(board, pts, W, net)
     # the guard track below the lanes, in pieces between the places where a long line leaves
     gd = tb.GUARD_DEPTH
@@ -270,8 +271,10 @@ def touch_block(board, f):
 
 
 def tail_link_points(f):
-    """the tail line's run from the stub below its lane straight to the tail pad's plated hole, BOARD mm"""
-    return [B(*mo.at(mo.SLIDER, mo.slider_len - 1.0, tb.LONG_STUB_DEPTH)[:2]), pad(f['E12'], '1')]
+    """the tail line's run from the end of its lane straight to the tail pad's plated hole, BOARD mm. (It left
+    by a stub below the band until the compass moved into the tail stem: the stub ended 1.4 mm from the
+    compass's SCL pad, and nothing could reach that pad at the spacing touch lines are given.)"""
+    return [B(*mo.at(mo.SLIDER, mo.slider_len - 1.0, tb.LONG[0][2])[:2]), pad(f['E12'], '1')]
 
 
 def tail_link(board, f):
