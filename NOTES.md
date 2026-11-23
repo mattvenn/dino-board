@@ -41,11 +41,18 @@ route has not been independently re-read. NOT FOR ORDERING.
   The eye LED was flagged twice: advanced part, and baking. The current board (4 layers, five more
   extended lines) has NOT been quoted and will cost more. `draft/` and `fab/draft2/` are old quote-only sets
   and must not be ordered.
+- `fab/draft3/` (2026-11-23): upload set of the present four-layer board, made by `tools/make_upload.sh
+  draft3`, FOR A QUOTE ONLY: Gerbers for four copper layers, mask, paste and silkscreen, drill files, BOM
+  (41 lines, 122 parts), placement file from JLCPCB's own footprints. `jlc_cpl.py` asks for a look in
+  the preview at: D23 (polarised); J1, J2, J3, SW1, SW2, U4 (matched by position); and U9, where
+  JLCPCB's footprint has a fifth, centre pad that the KiCad footprint (Sensirion's no-centre-pad pattern)
+  leaves out, so its rotation could not be confirmed from the pads. The new eye LED D21 matched without
+  comment. The set has not had the release review.
 - Git: branch `main`, remote `origin`.
 - Tools: kicad-cli 10.0.8 runs with `KICAD_DOCUMENTS_HOME=<project>/kicad-user`.
 - NOT DONE: the owner's read of the schematic; mechanical sign-off of the placement and the mounting-hole
-  positions (placeholders); silkscreen and show-face artwork; JLCPCB's edge rails and tab positions;
-  the upload set for the routed board; the release review; JLCPCB's placement preview.
+  positions (placeholders); an independent re-read of the present route; silkscreen and show-face
+  artwork; JLCPCB's edge rails and tab positions; the release review; JLCPCB's placement preview.
 
 ## Deadline
 
