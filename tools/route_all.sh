@@ -1,0 +1,43 @@
+#!/bin/bash
+# Build and route the board from the schematic's netlist, start to finish. About 40 minutes.
+#   tools/route_all.sh            everything
+#   tools/route_all.sh finish     skip the autorouter: use its saved result, routing/route_signals.ses
+#                                 (only valid while the placement and scripted tracks are unchanged)
+# The autorouter is not repeatable run to run, so its result is kept (routing/route_signals.ses) and
+# the board that goes out is whatever this script last produced: check it, do not assume it.
+set -e
+cd "$(dirname "$0")/.."
+export KICAD_DOCUMENTS_HOME="$PWD/kicad-user"
+K=/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli
+KPY=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python
+quiet() { grep -v "wxApp\|Debug\|memory leak\|^$" || true; }
+W=build/pcb
+
+mkdir -p $W routing
+python3 tools/schematic.py export | tail -1                     # also writes build/sch/netlist.net
+"$KPY" tools/build_board.py 2>&1 | quiet                        # placement, nets, electrodes
+"$KPY" tools/route_board.py strip 2>&1 | quiet                  # LED strip, touch block, touch lanes
+cp dinolight.kicad_pcb $W/strip.kicad_pcb                       # what counts as "scripted" from here on
+if [ "$1" != "finish" ]; then
+    "$KPY" tools/route_board.py dsn 2>&1 | quiet
+    rm -f $W/route.ses
+    # 80 passes, about 12 minutes: it gains almost nothing after pass 50, and the patch router finishes
+    # what is left. Keep the Mac awake (lid open): the autorouter's time limits expire during sleep and
+    # it then fails most connections.
+    caffeinate -is tools/freerouting_capped.sh ${PASSES:-80} $W/route.dsn $W/route.ses > $W/freerouting.log 2>&1
+    cp $W/route.ses routing/route_signals.ses
+else
+    cp routing/route_signals.ses $W/route.ses
+fi
+"$KPY" tools/route_board.py ses 2>&1 | quiet
+"$KPY" tools/patch_route.py --rounds 14 2>&1 | quiet            # what the autorouter left open, and its rule breaks
+"$KPY" tools/patch_route.py --tidy 2>&1 | quiet                 # dead ends, including unused scripted stubs
+"$KPY" tools/patch_route.py --rounds 6 2>&1 | quiet             # anything the tidying opened
+"$KPY" tools/patch_route.py --ground --rounds 6 2>&1 | quiet    # every ground pad tied in by track
+"$KPY" tools/patch_route.py --rounds 6 2>&1 | quiet             # anything the ground tracks pushed aside
+"$KPY" tools/trim_dangling.py 2>&1 | quiet                      # KiCad's own list of dead ends, safely
+cp dinolight.kicad_pcb $W/before_pour.kicad_pcb
+"$KPY" tools/route_board.py pour 2>&1 | quiet                   # ground pours on both faces, stitching vias
+"$K" pcb drc --format json --severity-all --schematic-parity -o $W/drc.json dinolight.kicad_pcb > /dev/null
+python3 tools/drc_summary.py $W/drc.json
+rm -f ./~*.lck

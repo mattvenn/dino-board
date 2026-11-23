@@ -2,8 +2,9 @@
 
 Mosasaurus-shaped light-up PCB, a toy for a young child.
 20 side-emitting addressable LEDs along the spine, a one-LED eye shining through the board, ESP32-S3 module running CircuitPython,
-accelerometer, 12 capacitive touch zones on the bare front face read by an MPR121 touch controller,
-LiPo, USB-C.
+12 capacitive touch zones on the bare front face read by an MPR121 touch controller, LiPo, USB-C.
+Sensors for science games (added 2026-11-22 at the owner's request): accelerometer + gyroscope, compass,
+temperature + humidity on the tail tip, light at the nose, barometer; and a buzzer.
 JLCPCB Standard assembly, parts on one side. 2 layers.
 
 Decisions marked "owner" are the owner's; those marked "mine" were made by the AI assistant doing the
@@ -55,8 +56,9 @@ design work and are open to change.
 | CircuitPython | Easy to change later: edit `code.py` on the USB drive | owner |
 | Battery bought locally at the destination, not shipped with the toy | Lithium cells are restricted in the post | owner |
 | ESP32-S3-MINI-1-N8 module | Native USB (no bridge chip), deep sleep, Bluetooth, in stock. Cheaper modules checked 2026-11-22: ESP32-S2-MINI-2 ($2.89) loses Bluetooth and the two LED data pins; ESP32-C3-MINI-1 ($3.05) is no better. Saving about $9 on five boards: not worth it | mine, open |
-| Dedicated touch controller U7 (MPR121, 12 channels, I2C 0x5A), not the module's own touch pins | The owner has not had good results with the ESP32's built-in touch. The MPR121 has a CircuitPython library, an interrupt that can wake the module, and gives per-electrode readings, so the eight spine pads can be read as a slider. Others checked at JLCPCB on 2026-11-22: AT42QT2120 (in-chip slider, but only across three channels, SOIC-20, no library), CAP1188 / CAP1298 (8 channels, low stock), Azoteq IQS7222 (none in stock) | owner |
+| Dedicated touch controller U7 (MPR121, 12 channels, I2C 0x5C), not the module's own touch pins | The owner has not had good results with the ESP32's built-in touch. The MPR121 has a CircuitPython library, an interrupt that can wake the module, and gives per-electrode readings, so the eight spine pads can be read as a slider. Others checked at JLCPCB on 2026-11-22: AT42QT2120 (in-chip slider, but only across three channels, SOIC-20, no library), CAP1188 / CAP1298 (8 channels, low stock), Azoteq IQS7222 (none in stock) | owner |
 | The touch slider runs the whole length of the LED run | So a light can follow the finger: touch with no LED above it, or LEDs with no touch below, would spoil that | owner |
+| Touch controller address 0x5C: ADDR tied to SDA | The datasheet allows ADDR on VSS, VDD, SDA or SCL. SDA is the neighbouring pin, so the tie is a 0.4 mm bridge instead of a ground connection threaded out between other pins; it also keeps clear of 0x5A, which several Qwiic add-ons use. Changed 2026-11-22 after review 3, which had checked it grounded: this one net is unreviewed | mine, open |
 | Slider electrodes interleave with long teeth: 8 segments, each with one central tooth reaching to the next segment's centre between two half-teeth of its neighbour | Atmel AT11805 (in `datasheets/`) calls this spatial interpolation: touch area passes linearly from one electrode to the next, so position can be interpolated. Its figures followed here: tooth sections 3 to 4 mm tall (3 mm used), tips no thinner than 0.25 mm (0.3 used). The note's own long-slider circuits are mutual-capacitance designs for Atmel's PTC, and its resistor-interpolated version does not apply to a self-capacitance chip like the MPR121; the electrode shape does. Segment pitch is 20.7 mm, wider than the 8 mm keys the note's standard slider uses, which is what the long teeth compensate for | mine, open |
 | 470R in series with each touch electrode | Static and noise protection; electrodes are under solder mask only | mine, open |
 | Eye = one reverse-mount SK6812MINI-E (D21) on the parts side, shining through its slot to the show face | The owner wants a real part rather than edge-lighting a hole. JLCPCB's page for C5149201 says "Standard Only, Assembly Difficulty High": a rating, not a refusal, and this board is on Standard already. In the owner's first quote it came back with quantity 0, so it must be selected by hand in the BOM step. Its sister SK6812MINI-EA (C5378731) is rated for both services with no difficulty flag, but JLCPCB's symbol for it numbers the pins differently from its own datasheet, so it is the fallback, not the choice | owner |
@@ -75,7 +77,18 @@ design work and are open to change.
 | Charger STAT through a 100k / 100k divider | STAT is three-state and drives to VBUS (5 V) when charge completes; the module's pins are 3.3 V | mine |
 | Polarity jumpers SJ1, SJ2 on the battery connector | JST-PH LiPos come in both polarities and the cell is bought separately, unseen. Default: J2 pin 1 = + (SparkFun's stated convention; whether that is the footprint's pad 1 is unverified) | mine, open |
 | Reverse-polarity P-FET Q1 and a 1.1 A polyfuse F1 at the battery | A wrong-way cell then does nothing rather than damage; a child's toy | mine, open |
-| Eye LEDs on their own data pin (IO48), spine on IO47 | IO48 is the status-LED pin of the DevKitM-1 board, whose stock CircuitPython build should run on this module (from memory, unverified) | mine, open |
+| Eye LED on its own data pin (IO48), spine on IO11 | IO48 is the status-LED pin of the DevKitM-1 board, whose stock CircuitPython build should run on this module (from memory, unverified). The spine moved from IO47 to IO11 on 2026-11-22: IO11 is the module pad nearest the first LED, and its series resistor R14 now sits beside that LED, so the line no longer crosses the module twice. Not a strapping pin; unreviewed | mine, open |
+| The three long touch lines (tail, rear flipper, front flipper) run in scripted lanes on the parts side, beside the slider's eight, for the length of the body | Left to the routers they came out 100 to 180 mm long, wandering, partly on the show face, where a touch line answers to a finger anywhere along it; and every other route kept pushing them aside. In lanes they are fixed, short, and behind the slider's own copper. The module moved 1.2 mm away from the spine to make room | mine, open |
+| Touch channel order: ELE8 snout, ELE9 tail, ELE10 rear flipper, ELE11 front flipper | So the three long lines leave the controller nested and none crosses another: the tail line is outermost and stays in its lane longest. Firmware needs a table, not arithmetic | mine, open |
+| Every ground pad is tied in by track and via before the ground pours go on | The first routing pass left 79 ground pads hanging on fragments of pour. Now the pours add to the ground instead of being the only thing holding it together; the two pours are stitched on a 4 mm grid | mine, open |
+| Decoupling capacitors are placed with their chip as one block (regulator, charger, accelerometer, supervisor) | The first placement packed parts by size, which left these capacitors 6 to 10 mm from the pins they serve (found by `board_audit.py`) | mine |
+| No copper within 2.8 mm of a mounting hole's centre, either face | Room for an M2.5 screw head or a case boss. The hole positions are still placeholders | mine, open |
+| Sensors added: LSM6DS3TR-C (accelerometer + gyroscope, replaces the LIS2DH12), QMC5883P (compass), SHT40 (temperature + humidity), LTR-303ALS (light), BMP580 (pressure), and an MLT-5020 buzzer | The owner, 2026-11-22: "add them all - worst case, we can not place them". Nine motion axes from two chips for $2.90; single-chip nine-axis parts at JLCPCB are $10 to $20 or out of stock | owner |
+| Temperature sensor on the tip of the tail, compass on the upper tail lobe, light sensor at the nose, buzzer in the jaw | Owner: the tail can stick out of the case as a thermometer; the light sensor goes at the nose and the case gets a hole. Mine: the compass sits where there are no LEDs, no touch copper and little current, 180 mm from the buzzer's magnet | owner / mine |
+| Buzzer: 5 mm MLT-5020 from 3.3 V through R35 and R37 in parallel (50 ohms), switched by an AO3400A, 1N4148W across it | The 8.5 mm buzzer does not fit anywhere far from the compass. The resistors cap the current at 53 mA if firmware leaves the pin high (71 mW in each 125 mW part); two basic 0805s because no 1206 of a useful value is a basic part. The 2N7002 is not specified below 5 V gate drive | mine, after review 4 |
+| Gate pull-downs R12 (LED rail switch) and R36 (buzzer) are 4.7k, were 100k | CircuitPython puts a 45k pull-up on every pin the program has not claimed (at start-up, at the prompt, after a crash). Against 100k that puts 2.3 V on the gate: the LED rail and the buzzer would be half on. 4.7k holds it at 0.3 V | mine, after review 4 |
+| I2C pull-ups 2.2k, were 4.7k | The bus now runs nose to tail with six devices and the Qwiic socket | mine |
+| A grounded guard track below the touch lanes, the length of the body | Keeps the I2C bus and anything else the routers lay along the body off the long touch lines | mine, after review 4 |
 | Qwiic connector on the I2C bus | Add-on projects later; part used before | mine, open |
 | 2 layers | An inner ground plane 0.2 mm behind the touch electrodes would swamp them | mine, open |
 
@@ -89,7 +102,14 @@ The owner's upload on 2026-11-22 matched every line by C-number.
 | OPSCO SK6812SIDE-A side LED x20 | C5378721 | 137,956 | Economic and Standard | ext | $0.11 | DinoLight:LED_SK6812SIDE-A_4.0x1.6mm (own; matches JLCPCB's to 0.02 mm) | page says MSL 3, linked datasheet is the -012 variant and says MSL 5a |
 | ESP32-S3-MINI-1-N8 | C2913206 | 14,793 | Standard Only, X-ray | ext | $4.73 | RF_Module:ESP32-S2-MINI-1 (73 of 73 pads match JLCPCB's, 0.03 mm) | antenna keepout |
 | OPSCO SK6812MINI-E reverse-mount LED (eye) | C5149201 | 157,116 | Standard Only, assembly difficulty high | ext | $0.08 | LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount (4 of 4 pads, 0.04 mm) | select it by hand in JLCPCB's BOM step; its pads sit closer to its own slot than the board's edge rule |
-| LIS2DH12TR accelerometer | C110926 | 9,994 | Standard Only | ext | $0.89 | LGA-12_2x2mm_P0.5mm | JLCPCB's footprint service has none for it; pin 1 in the preview |
+| LSM6DS3TR-C accelerometer + gyroscope | C967633 | 24,969 | Standard Only | ext | $1.32 | LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y (centres and numbering match the package drawing) | pin 1 in the preview; ST's own land-pattern note not read |
+| QMC5883P magnetometer | C2847467 | 2,731 | Standard Only | ext | $1.58 | LGA-16_3x3mm_P0.5mm (pads 0.025 mm further in than the datasheet's, 0.05 larger) | stock is modest and the part page shows 0 available to pre-order: re-check before ordering. Fallback IST8310 (C2683055) needs a new symbol |
+| SHT40-AD1B temperature + humidity | C2909890 | 12,766 | Economic and Standard | ext | $1.31 | Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad (exact) | |
+| LTR-303ALS-01 light sensor | C364577 | 10,174 | Economic and Standard | ext | $0.55 | Lite-On_LTR-303ALS-01 (exact) | moisture level 3 |
+| BMP580 pressure sensor | C22391138 | 11,146 | Standard Only | ext | $1.21 | DinoLight:Bosch_LGA-10_2x2mm_P0.5mm_BMP580 (own: Bosch's pad centres, pads 0.375 x 0.25) | compare with JLCPCB's own footprint at release |
+| MLT-5020 buzzer | C94598 | 110,169 | Economic and Standard | ext | $0.39 | DinoLight:Buzzer_MLT-5020 (own, pad for pad as JLCPCB's) | + pad and rotation in the preview; loudness through 50 ohms is an estimate |
+| AO3400A N-FET (buzzer) | C20917 | 1,496,353 | Economic and Standard | basic | $0.08 | SOT-23 | |
+| 100R 0805 x2, 2.2k 0402 x2, 1 uF 0402, 4.7 uF 0603 | C17408, C25879, C52923, C19666 | millions | Economic and Standard | basic | | | |
 | TYPE-C-31-M-12 USB-C, 16 pin | C165948 | 482,527 | Economic and Standard | ext | $0.19 | USB_C_Receptacle_HRO_TYPE-C-31-M-12 (0.12 mm) | board-edge line |
 | MCP73831T-2ACI/OT charger | C424093 | 4,058 | Economic and Standard | ext | $0.79 | SOT-23-5 | |
 | RT9080-33GJ5 regulator | C841192 | 25,016 | Economic and Standard | ext | $0.12 | TSOT-23-5 | |
@@ -108,6 +128,8 @@ The owner's upload on 2026-11-22 matched every line by C-number.
 | 0402 R: 330R, 470R, 1k, 4.7k, 5.1k, 10k, 100k, 200k, 1M | C25104, C25117, C11702, C25900, C25905, C25744, C25741, C25764, C26083 | millions | Economic and Standard | basic | | 0402 | 150k, 470k, 68k in 0402 are extended parts: avoided |
 | 100 nF 0402, 10 uF 0805 | C1525, C15850 | millions | Economic and Standard | basic | | 0402 / 0805 | |
 
+Not used any more: LIS2DH12TR (C110926), replaced by the LSM6DS3TR-C.
+
 Avoid: SK6812SIDE-A-RVS
 C2890037 (Standard Only, MSL 5a); LIS3DHTR C15134 (pre-order).
 
@@ -122,7 +144,7 @@ Threshold 2.93 V, hysteresis 40 mV typ, 200 ms delay, 9 uA typ. Drawn with KiCad
 (same pin numbers).
 
 **MPR121QR2 (C91322).** NXP datasheet (rev 4): QFN-20, no exposed pad, 1 IRQ (open collector, active low), 2 SCL, 3 SDA,
-4 ADDR (to VSS = address 0x5A), 5 VREG (0.1 uF to VSS when VDD is 2.0 to 3.6 V), 6 VSS, 7 REXT (75k 1 %
+4 ADDR (VSS, VDD, SDA or SCL give 0x5A, 0x5B, 0x5C, 0x5D; here tied to SDA = 0x5C), 5 VREG (0.1 uF to VSS when VDD is 2.0 to 3.6 V), 6 VSS, 7 REXT (75k 1 %
 to VSS), 8 to 19 ELE0 to ELE11, 20 VDD (0.1 uF). VDD 1.71 to 3.6 V. Supply current (datasheet table 5,
 read by the reviewer): 3 uA stopped, which is its state after power-on; 8 / 11 / 17 / 29 uA running at
 128 / 64 / 32 / 16 ms sample intervals. Electrode capacitance range 10 pF to over 2000 pF.
@@ -147,8 +169,40 @@ data runs right to left in the component-side view. VDD 3.7 to 5.5 V; VIH 0.65 V
 USB D- is GPIO19, D+ is GPIO20. Strapping: GPIO0 (pull-up, boot), GPIO3 (floating), GPIO45, GPIO46
 (pull-down). EN must not float. Deep sleep 7 to 8 uA; 18 uA with touch wake at 1 % duty.
 
-**LIS2DH12 (C110926).** LGA-12: 1 SCL, 2 CS (tie high for I2C), 3 SA0 (internal pull-up; address 0x19
-high, 0x18 low), 4 SDA, 5 Res (to GND), 6 to 8 GND, 9 Vdd, 10 Vdd_IO, 11 INT2, 12 INT1.
+The six parts below were read from their datasheets by an independent reader on 2026-11-22 (page
+references in its report; PDFs in `datasheets/`), then checked again pin by pin in review 4.
+
+**LSM6DS3TR-C (C967633).** LGA-14, pin 1 top-left, counter-clockwise: 1 SDO/SA0 (GND = 0x6A; no pull-up,
+must not float), 2 SDx and 3 SCx (tie to GND), 4 INT1, 5 VDDIO, 6 and 7 GND, 8 VDD, 9 INT2, 10 and 11 NC
+(soldered, no net, never grounded), 12 CS (high = I2C), 13 SCL, 14 SDA. 1.71 to 3.6 V; 100 nF on each
+supply pin. Interrupts push-pull, active high, driven low at reset. 3 uA powered down, 9 uA in 12.5 Hz
+low-power accelerometer mode (can wake the module), 0.9 mA with the gyroscope running. With pin 1 top-left:
++X to the right, +Y up, +Z out of the top.
+
+**QMC5883P (C2847467).** LGA-16, pin 1 top-left, counter-clockwise: 1 SCK, 2 VDD (100 nF), 9 and 11 GND,
+10 C1 (4.7 uF low-ESR to GND, mandatory), 16 SDA; all other pads NC. Not the same as the QMC5883L.
+2.5 to 3.6 V. Fixed address 0x2C, chip ID 0x80 at register 0. No interrupt pin. 22 uA suspended (there is
+no lower state). Datasheet: no copper under or near it on any layer; no ferrous parts nearby on either
+side. With pin 1 top-left: +X to the left, +Y down (signs also depend on a register write).
+
+**SHT40-AD1B (C2909890).** DFN-4: 1 SDA, 2 SCL, 3 VDD (100 nF), 4 VSS; the centre die pad is not soldered.
+1.08 to 3.6 V. Address 0x44. No copper under it except its pads. No clock stretching: it does not answer
+while measuring. 0.1 uA idle. Its heater draws 75 mA: do not use it.
+
+**LTR-303ALS-01 (C364577).** 1 VDD (1 uF), 2 NC, 3 GND, 4 SCL, 5 INT (open drain, unused, open), 6 SDA.
+2.4 to 3.6 V, absolute maximum 3.8 V. Address 0x29. 5 uA standby. Wait 100 ms after power-up.
+
+**BMP580 (C22391138).** LGA-10, counter-clockwise from pin 1 top-left: 1 VDDIO, 2 SCK, 3 VSS, 4 SDI (SDA),
+5 SDO (GND = 0x46; must not float), 6 CSB (to VDDIO: low at power-up locks I2C out until the next power
+cycle), 7 INT (grounded; disabled at reset), 8 and 9 VSS, 10 VDD. 100 nF on each supply. 1.71 to 3.6 V.
+0.55 uA in deep standby. Vent in the lid: no wash, nothing over it.
+
+**MLT-5020 (C94598).** Passive magnetic buzzer, 12 +/- 3 ohms, 3 V rated (2 to 4 V), 100 mA max, 4 kHz,
+75 dB at 10 cm at rated drive. Pad 1 +, pad 2 -, third terminal unlabelled and left without a net. The
+corner with no terminal is chamfered. Sound port on top.
+
+**AO3400A (C20917).** AOS datasheet: threshold 0.65 to 1.45 V, under 48 milliohms at 2.5 V gate drive,
+gate limit +/-12 V. SOT-23, 1 gate, 2 source, 3 drain (KiCad symbol; the datasheet drawing agrees).
 
 **RT9080-33GJ5 (C841192).** TSOT-23-5: 1 VIN, 2 GND, 3 EN, 4 NC, 5 VOUT. VIN 1.2 to 5.5 V. EN high
 above 0.9 V, low below 0.4 V, absolute max 6.5 V. Shutdown 0.1 uA typ. Drawn with KiCad's XC6220B331MR
@@ -164,7 +218,9 @@ frame. Signal pins are on the side away from the knob. Rated 50 mA at 12 V.
 
 | Item | What to check |
 |---|---|
-| LIS2DH12 footprint | JLCPCB's footprint service returned nothing for C110926, so its placement row is KiCad's own position and rotation. The upload accepted it; look at pin 1 in the preview |
+| New parts in the placement preview | Pin 1 and rotation of U5, U8, U9, U10, U11; the buzzer's + pad (BZ1); D24's cathode; Q4 |
+| QMC5883P stock | 2,731 on 2026-11-22 but the page showed 0 available to pre-order: look again on the day |
+| No-wash parts | SHT40, BMP580 and the buzzer have openings: confirm JLCPCB's process does not wash or coat the board |
 | Parts matched by position | J1, J2, J3, SW1, SW2, SW3, U4 in the placement preview (pad names differ between the libraries) |
 | Side LED direction | In JLCPCB's placement preview: every spine LED's window faces off the board, and the two eye LEDs face into the hole |
 | Parts at the edge of an irregular board | From a web search of JLCPCB's help pages on 2026-11-22 (figures differ between their pages; not read in full): Standard assembly requires edge rails and fiducials; JLCPCB adds 5 mm rails if asked; part bodies should be 2.5 mm or more from the board edge unless rails provide the clearance; irregular outlines are held to the rails by tabs or mouse bites (4 to 5 mm wide); parts overhanging the outline need a slot in the rail. Consequences to settle at placement: where the tabs may attach (not on the spine edge between LEDs, not at the USB socket or switch), whether to draw our own panel to control that, and which order-form option the owner picks for rails. the owner's draft upload raised nothing he mentioned |
@@ -229,7 +285,7 @@ Left as is:
 | IRQ stays low until the touch status is read; sleeping with it low draws 33 uA through R34 and wakes at once | Firmware: read the status before sleeping; wake on GPIO1 low |
 | MPR121 scans on its own clock, so it cannot be synchronised with LED frames; supply steps out of regulation can look like touches | Firmware: 10 or more first-filter samples, debounce, ignore touch when the battery is low. Layout: keep LED data and VLED tracks from running under or beside electrode tracks |
 | Unplugging USB takes 1.6 to 3.7 s to read low on VBUS_DET (C1 discharging through 300k) | Firmware debounce. Lower divider values would need extended parts |
-| Several Qwiic add-ons also use 0x5A | ADDR could go to +3V3 for 0x5B if it ever matters |
+| Several Qwiic add-ons also use 0x5A | Settled after the review: ADDR is now tied to SDA, the pin beside it, giving 0x5C. That also removed the one awkward connection in the chip's fan-out |
 | U7 has no reset pin | Firmware sends the soft reset (register 0x80) at start-up |
 | The module's former touch pins are open pads | Harmless; firmware can park them with a pull |
 | Electrode tracks up to 150 mm are themselves touch-sensitive, and a moving LiPo pouch next to an electrode reads as touch | Layout: thin electrode tracks away from other zones, electrodes and their tracks clear of the battery area |
@@ -264,6 +320,34 @@ pinouts from their datasheets; pad names for all parts.
 Not verified: how real USB-C chargers react to voltage on VBUS (now moot with D23); the Q2 transition
 figures are hand calculations; SK6812 behaviour during the plug-in blip; the last three edits (D23, R32,
 C32) have not had a third independent pass.
+
+### Review 4, 2026-11-22: the sensors, buzzer and other changes of the day (fresh independent reader)
+
+Scope: the six new parts and their support parts, the buzzer drive, the 2.2k pull-ups, spine data on IO11,
+the touch channel order, and the touch controller's address tie (unreviewed until now). Read against the
+datasheets in `datasheets/`. Verdict: no blocker; every pin of U5, U8, U9, U10, U11, BZ1, Q4 and D24
+matches its datasheet; six distinct I2C addresses.
+
+| Finding | Severity | Decision |
+|---|---|---|
+| Gate pull-downs of 100k (R36 new, R12 existing) lose to the 45k pull-up CircuitPython puts on unclaimed pins: buzzer and LED rail half on at start-up, at the prompt and after a crash | should-fix | Fixed: both 4.7k (0.3 V at the gate) |
+| Buzzer through 100R gets about 0.35 V, well under its 2 V minimum, so quiet; and a lower resistor for "louder" would overheat an 0805 if the pin stuck high; the 2N7002 is not specified at 3.3 V gate drive | should-fix | Fixed: two 100R 0805 in parallel (53 mA and 71 mW each if stuck), AO3400A. Loudness is still an estimate until built |
+| Placement rules the new parts bring: compass away from the buzzer, LED rail, cell and steel; I2C off the touch lanes; no pour under the SHT40; openings in the cover | should-fix | Done in placement and routing: compass on the tail lobe 180 mm from the buzzer with no copper round it; guard track below the touch lanes; pour and show-face tracks kept away from U8 and U9. The cover openings are in "For the case" |
+| BMP580 INT is grounded: a driver that enables it as push-pull would short the output | note | Left grounded as the datasheet allows; firmware note added |
+| BMP580 leaves I2C if it ever sees address 0x7E | note | Firmware note |
+| BMP580 footprint: stock ST footprint leaves 0.125 mm between corner pads; own footprint is right, pads could reach further out | note | Own footprint used, pads lengthened outward by 0.075 mm |
+| Sleep current: the additions add 26 to 31 uA (22 of it the compass), about 75 to 80 uA in all | note | Accepted: about nine months from a 500 mAh cell |
+| After a brown-out the sensors keep their state while the module resets | note | Firmware: soft-reset every sensor at start-up and clock SCL nine times first |
+| A Qwiic add-on with its own 2.2k pull-ups halves the bus pull-up; two take it below the light sensor's 1k minimum | note | Recorded under "For firmware" |
+| ACC_INT pins are driven low by U5 while CircuitPython pulls unclaimed pins up: 73 uA each wasted | note | Firmware: claim them as inputs with no pull |
+| E10 and E12 value texts were swapped (nets right) | note | Fixed |
+| C40 loses 20 to 30 % under bias (from memory) | note | Left at 4.7 uF 0603: a bigger capacitor is more nickel beside the compass |
+
+Not verified by the reviewer: the QMC5883P's sink current (not in its datasheet); the ESP32-S3's pin state
+in reset; whether CircuitPython's pull-ups persist in deep sleep; what the CircuitPython drivers do by
+default; the buzzer's inductance and real loudness. The changes made after this review (the 4.7k
+pull-downs, the buzzer resistors and FET) were made as the reviewer specified and checked by the
+netlist comparison, not by another independent pass.
 
 ## Placement draft (2026-11-22)
 
@@ -371,6 +455,11 @@ ground and re-check.
 - Battery space sketched as 36 x 28 mm (a 500 to 600 mAh cell). Keep that area of the board free of
   parts: a pouch cell must not rest on solder joints.
 - USB-C and the slide switch must be reachable; BOOT and RESET by a pin hole at least.
+- Openings in the cover, all on the parts side: a window over the light sensor U10 at the nose; a vent
+  near the barometer U11 (rear flipper root); a sound hole over the buzzer BZ1 in the jaw. The tip of the
+  upper tail lobe, with the temperature and humidity sensor U9, should stand clear of the case altogether.
+- Compass U8 is on the upper tail lobe, 11 mm from mounting hole H3: use a brass or nylon screw there,
+  or move the hole. Keep magnets (a magnetic catch, a speaker) away from the tail.
 - Fixing the board to the case is undecided (the owner, 2026-11-22: press fit has no loose small parts, but
   what goes in can be pulled out). The board has three 2.7 mm (M2.5) holes H1 to H3 at placeholder
   positions. My
@@ -385,19 +474,49 @@ Pin map (as in the schematic):
 |---|---|
 | 0 | BOOT button |
 | 1 | TOUCH_IRQ from the MPR121: low when a touch or release is waiting; can wake the module |
-| 2, 4 to 9, 11 to 14 | Spare, not brought out |
+| 2, 5 to 9, 12 to 14, 47 | Spare, not brought out |
+| 4 | BUZZ: buzzer, high = on; drive with a 4 kHz square wave, leave low otherwise |
 | 3 | Not used (strapping pin); test point |
 | 10 | VBAT_SENSE: battery / 2 (ADC1) |
-| 15, 16 | Accelerometer INT1 (wake), INT2 |
+| 15, 16 | Motion sensor INT1 (wake), INT2: push-pull, active high |
 | 17 | CHG_STAT: high = charge complete; low = charging, or no USB |
 | 18 | VBUS_DET: high = USB present |
 | 19, 20 | USB D-, D+ |
 | 21 | LED_EN: high = LED rail on; pulled down |
-| 41, 42 | I2C SDA, SCL: accelerometer (0x19) and Qwiic |
-| 47 | Spine LED data, 20 LEDs, first LED at the head |
+| 11 | Spine LED data, 20 LEDs, first LED at the head |
+| 41, 42 | I2C SDA, SCL: see the address table below |
 | 48 | Eye LED data, 1 LED |
 | 43, 44 | UART0 TX, RX on test points |
 
+I2C addresses (one bus, 2.2k pull-ups, use 100 kHz unless measured):
+
+| Address | Part | Library (from memory, unverified) |
+|---|---|---|
+| 0x29 | U10 LTR-303ALS light, at the nose | adafruit_ltr329_ltr303 |
+| 0x2C | U8 QMC5883P compass, on the tail | adafruit_qmc5883p, or a few register writes |
+| 0x44 | U9 SHT40 temperature and humidity, tail tip | adafruit_sht4x |
+| 0x46 | U11 BMP580 pressure | adafruit_bmp5xx |
+| 0x5C | U7 MPR121 touch | adafruit_mpr121 (pass the address) |
+| 0x6A | U5 LSM6DS3TR-C accelerometer and gyroscope | adafruit_lsm6ds (LSM6DS3TRC) |
+
+- Claim every pin at start-up. CircuitPython pulls unclaimed pins up through about 45k: the gate pull-downs
+  hold against that, but the motion sensor's interrupt pins (driven low) waste 73 uA each until claimed
+  as inputs with no pull.
+- At start-up clock SCL nine times, then soft-reset every sensor: after a brown-out the module resets but
+  the sensors keep their state.
+- Buzzer: PWM at 4 kHz, 50 %. Never leave GPIO4 high: 53 mA flows through R35 and R37 for as long as it is.
+- Compass: read it with the LEDs dark or dim (LED current makes its own field); it needs a
+  figure-of-eight calibration; keep steel away (see "For the case"). Put it in suspend before sleep; it
+  still draws 22 uA.
+- Motion sensor: for wake-on-movement leave the accelerometer in 12.5 Hz low-power mode (9 uA) with the
+  gyroscope off; otherwise power it down (3 uA). Axes with the board lying parts side up: see the ground truth.
+- BMP580: never enable its interrupt (the pin is grounded) and never address 0x7E on the bus. For deep
+  standby it needs an output rate under 5 Hz, FIFO off and both filters bypassed.
+- SHT40: do not use its heater. Wait 10 ms after asking for a reading.
+- LTR-303: wait 100 ms after power-up. It will also see the board's own LEDs.
+- A Qwiic add-on with its own pull-ups lowers the bus pull-up: cut the add-on's pull-up jumpers if more
+  than one is fitted.
+- Sleep current with everything in its lowest state: about 75 to 80 uA (reviewer's sum).
 - Turn the LED rail off before sleeping. Drive both LED data pins low (or release them) before taking
   LED_EN low: a high data pin back-feeds the dead rail through the LED's input, about 8 mA per line.
 - Cap total LED current at about 0.3 A: the maker allows 70 % with all colours lit, 21 LEDs at full
@@ -409,12 +528,12 @@ Pin map (as in the schematic):
   every boot becomes a reboot loop.
 - After releasing RESET the module starts about 0.2 s later (U6's delay).
 - CHG_STAT reads "charging" with no cell fitted, and VBUS_DET stays high for 1 to 2 s after unplugging.
-- Deep-sleep wake: use the accelerometer's INT1 on GPIO15. Touch wake is limited (reviewer, from memory:
+- Deep-sleep wake: use the motion sensor's INT1 on GPIO15 (wake on high). Touch wake is limited (reviewer, from memory:
   one pad).
 - CircuitPython's status LED is IO48, the eye; it stays dark unless the build names GPIO21 as its
   power pin (from memory, unverified).
-- Touch: MPR121 at I2C 0x5A. ELE0 to ELE7 are spine 1 to 8 (head to tail), ELE8 snout, ELE9 front
-  flipper, ELE10 rear flipper, ELE11 tail. Adafruit's CircuitPython MPR121 library should drive it
+- Touch: MPR121 at I2C 0x5C (not the library default of 0x5A: pass the address). ELE0 to ELE7 are spine 1 to 8 (head to tail), ELE8 snout, ELE9 tail,
+  ELE10 rear flipper, ELE11 front flipper (changed 2026-11-22; it was 9 front flipper, 11 tail). Adafruit's CircuitPython MPR121 library should drive it
   (from memory, unverified). For the slider, take each spine electrode's baseline minus its filtered
   reading and compute the weighted centre.
 - LED data and supply tracks run behind the spine electrodes: expect to tune thresholds with the LEDs
@@ -444,12 +563,18 @@ Pin map (as in the schematic):
 | `output/schematic.pdf`, `output/schematic_p1..3.png` | the schematic to read |
 | `tools/flat_netlist.py`, `build/sch/netlist_flat.txt` | flattened netlist for review |
 | `tools/build_board.py` | builds `dinolight.kicad_pcb` from the netlist: outline, placement, nets. Overwrites the board |
-| `dinolight.kicad_pcb`, `dinolight.kicad_pro` | the board (draft placement, no tracks) |
+| `dinolight.kicad_pcb`, `dinolight.kicad_pro` | the board: draft placement, fully routed |
 | `output/board_parts_side.png`, `board_show_face.png`, `board_1to1_parts_side.pdf`, `dinolight.step` | renders, a 1:1 print and a STEP of the board |
 | `tools/make_bom.py` | JLCPCB-format BOM from the netlist |
-| `tools/route_board.py` | routing stages: LED strip by rule, autorouter in and out, ground pours |
+| `tools/route_all.sh` | the whole routing run in one command, about 45 minutes; `finish` re-does everything after the autorouter |
+| `tools/route_board.py` | routing stages: LED strip, touch block and touch lanes by rule; autorouter in and out; ground pours and stitching vias |
+| `tools/touch_block.py` | where the touch controller's parts sit and how its lines leave it (shared by placement and routing) |
+| `tools/patch_route.py` | closes what the autorouter leaves open: a grid search that keeps scripted tracks and pads fixed and may push autorouted tracks aside; also ties in every ground pad |
+| `tools/trim_dangling.py` | takes out dead-end tracks for as long as nothing comes unconnected |
+| `tools/drc_summary.py`, `tools/view_region.py` | a short reading of a KiCad DRC report; a picture of part of the board for looking at routing |
+| `routing/route_signals.ses` | the autorouter's result that the current board was made from (it is not repeatable run to run) |
 | `tools/make_upload.sh` | exports Gerbers, BOM and placement file into `fab/<name>/` |
-| `fab/draft2/` | upload set from the first routing pass, for a quote only |
+| `fab/draft2/` | upload set from the first routing pass, for a quote only (superseded) |
 | `lib/DinoLight.kicad_sym`, `lib/DinoLight.pretty/` | own symbols (side LED, slide switch, VLED rail) and footprints (side LED, touch anchor) |
 | `datasheets/` | maker datasheets, named by C-number, plus Espressif's English module datasheet |
 | `outline/` | outline generator and its SVG / PNG output |

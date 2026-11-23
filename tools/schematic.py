@@ -22,12 +22,14 @@ spec.declare(d)
 P = d.sheet('Power')
 M = d.sheet('MCU')
 L = d.sheet('LEDs')
+S = d.sheet('Sensors')
 
 # =====================================================================================
 # Page 1: power
 # =====================================================================================
-P.subsheet(M, 244, 124, 44, 12)
-P.subsheet(L, 244, 146, 44, 12)
+P.subsheet(M, 244, 117, 44, 7)
+P.subsheet(L, 244, 133, 44, 7)
+P.subsheet(S, 244, 149, 44, 7)
 
 # ---- USB-C in --------------------------------------------------------------------
 P.frame(12, 14, 108, 104, 'USB-C in')
@@ -203,7 +205,7 @@ for i, net in enumerate(spec.TESTPOINTS[:5]):
         P.power(net, x + 4, y + 3)
 for i in (1, 2, 3):
     P.part('H%d' % i, 304, 114 + i * 12, ref=(0, -2.6, 'c'), val=(0, 2.6, 'c'))
-P.note(240, 164, 'Page 2: module, touch, accelerometer.', 'Page 3: LED rail, eye, spine chain.')
+P.note(240, 165, 'Page 2: module, touch, Qwiic.', 'Page 3: LED rail, eye, spine chain.', 'Page 4: sensors and buzzer.')
 
 # =====================================================================================
 # Page 2: module, touch, accelerometer
@@ -215,12 +217,12 @@ for i, (stem, what) in enumerate(spec.TOUCH):
     rr = M.part('R%d' % (20 + i), 44, y, rot=90, ref=(0, -2.3, 'c'), val=None)
     M.wire((34, y), rr.p(1))
     M.wire(rr.p(2), (66, y))
-    M.part('E%d' % (i + 1), 58, y, ref=(1.5, -2.6, 'l'), val=None)
+    M.part(spec.ELECTRODE.get(stem, 'E%d' % (i + 1)), 58, y, ref=(1.5, -2.6, 'l'), val=None)
     M.glabel('PAD_' + stem, 66, y)
     M.hint('%s, ELE%d' % (what, i), 86, y)
 M.note(14, 113, 'R20 to R31 are 470R: static protection in series with each electrode.')
 
-M.frame(12, 124, 112, 174, 'Touch controller MPR121 (I2C 0x5A)')
+M.frame(12, 124, 112, 174, 'Touch controller MPR121 (I2C 0x5C)')
 u7 = M.part('U7', 62, 150, ref=(-8, -15.5, 'l'), val=(2, 15.5, 'l'))
 M.connect_all(u7, length=2)
 M.connect_all(M.part('C37', 94, 146))
@@ -229,7 +231,7 @@ M.connect_all(M.part('R34', 20, 138, ref=(-2.4, 0, 'r'), val=None))
 M.connect_all(M.part('R33', 28, 150, ref=(-2.4, 0, 'r'), val=None))
 M.connect_all(M.part('C38', 36, 150, ref=(-2.4, 0, 'r'), val=None))
 M.note(14, 162, 'R34 100k pulls up IRQ (open collector).', 'R33 75k 1 % sets the charge current.',
-       'C38 100 nF on the internal regulator.', 'ADDR to ground: address 0x5A.',
+       'C38 100 nF on the internal regulator.', 'ADDR tied to SDA: address 0x5C.',
        'IRQ on GPIO1 can wake the module.')
 
 M.frame(116, 14, 204, 120, 'ESP32-S3 module')
@@ -239,7 +241,7 @@ M.connect_all(u4, skip=gnd, length=3)
 M.note(118, 100, 'GPIO0 (BOOT) has an internal pull-up. GPIO3, 45, 46 are strapping',
        'pins left open: their defaults give a normal boot with USB.',
        'GPIO19 / 20 are the USB pair. Touch is read by U7, not the module.',
-       'IO21 high = LED rail on. IO47 = spine data, IO48 = eye data.',
+       'IO21 high = LED rail on. IO11 = spine data, IO48 = eye data.',
        'Unlabelled pins are spare and not brought out.')
 
 M.frame(208, 14, 318, 76, 'Reset, boot, decoupling')
@@ -278,33 +280,16 @@ M.note(210, 67, 'U6 (TLV803S, open drain) holds EN low while 3V3 is under 2.93 V
        "charger's 21 mA trickle instead of the module eating it. U6 also gives the 200 ms start-up delay.",
        'R16 is 100k to keep the held-off drain low; R32 limits the current when U6 discharges C32.')
 
-M.frame(208, 80, 318, 150, 'Accelerometer (I2C 0x19) and Qwiic')
-u5 = M.part('U5', 262, 112, ref=(-6, -9.5, 'l'), val=(3, 9.5, 'l'))
-M.connect(u5, 1, length=2)
-M.connect(u5, 4, length=2)
-M.wire(u5.p(2), (242, 108), (242, 100))
-M.wire(u5.p(3), (242, 112), (242, 108))
-M.power('+3V3', 242, 100)
-M.wire(u5.p(9), (262, 98))
-M.wire(u5.p(10), (264, 100), (262, 100))
-M.power('+3V3', 262, 98)
-M.connect(u5, 12, length=3)
-M.connect(u5, 11, length=3)
-M.connect(u5, 5)
-M.power('GND', *u5.p(6))
-c33 = M.part('C33', 296, 100)
-c34 = M.part('C34', 306, 100)
-M.connect_all(c33)
-M.connect_all(c34)
-r17 = M.part('R17', 218, 100)
-r18 = M.part('R18', 228, 100)
+M.frame(208, 80, 318, 150, 'I2C pull-ups and Qwiic')
+r17 = M.part('R17', 228, 100)
+r18 = M.part('R18', 244, 100)
 M.connect_all(r17)
 M.connect_all(r18)
-j3 = M.part('J3', 300, 132, ref=(3, 1, 'l'), val=(3, 3, 'l'))
+j3 = M.part('J3', 290, 108, ref=(3, 1, 'l'), val=(3, 3, 'l'))
 M.connect_all(j3)
-M.note(210, 128, 'CS high selects I2C; SA0 high gives address 0x19.',
-       'INT1 can wake the module from deep sleep (pick-up, tap).',
-       'U5 is a LIS2DH12 (drawn with the pin-identical LIS2DE12 symbol).',
+M.note(210, 124, 'One I2C bus, nose to tail: touch 0x5C, motion 0x6A, compass 0x2C,',
+       'temperature / humidity 0x44, light 0x29, pressure 0x46 (page 4), plus Qwiic.',
+       'R17, R18 are 2.2k for the length of the bus. Use 100 kHz unless measured.',
        'Qwiic: 1 GND, 2 3V3, 3 SDA, 4 SCL.')
 
 M.frame(116, 124, 204, 150, 'Test points')
@@ -314,15 +299,16 @@ for i, net in enumerate(spec.TESTPOINTS[5:10]):
 
 M.frame(12, 178, 112, 215, 'For firmware')
 M.note(14, 184,
-       'Touch          MPR121 at 0x5A: ELE0-7 spine 1-8 (head to tail), ELE8 snout,',
-       '               9 front flipper, 10 rear flipper, 11 tail. TOUCH_IRQ on GPIO1',
+       'Touch          MPR121 at 0x5C: ELE0-7 spine 1-8 (head to tail), ELE8 snout,',
+       '               9 tail, 10 rear flipper, 11 front flipper. TOUCH_IRQ on GPIO1',
        'VBAT_SENSE     GPIO10, battery / 2',
        'ACC_INT1, 2    GPIO15, GPIO16',
        'CHG_STAT       GPIO17, high = charge complete',
        'VBUS_DET       GPIO18, high = USB present',
        'LED_EN         GPIO21, high = LED rail on',
        'SDA, SCL       GPIO41, GPIO42 (accelerometer 0x19, Qwiic)',
-       'SPINE_DATA     GPIO47, 20 LEDs, first at the head',
+       'SPINE_DATA     GPIO11, 20 LEDs, first at the head',
+       'BUZZ           GPIO4, high = buzzer on (4 kHz square wave)',
        'EYE_DATA       GPIO48, 1 LED',
        'UART           GPIO43 TX, GPIO44 RX on test points',
        'Turn the LED rail off before sleeping: each LED draws 0.6 mA when dark.',
@@ -416,6 +402,66 @@ L.part('TP11', 306, end[1], ref=(1.5, -2.6, 'l'), val=None)
 L.name_wire('SPINE_OUT', (end[0] + 6, end[1]), 'down', length=1)
 L.note(14, 191, 'All SK6812SIDE-A (C5378721): pin 1 DIN, 2 VDD, 3 DOUT, 4 GND. Data runs head to tail.',
        'SPINE_OUT is the end of the chain, on a test point.')
+
+# =====================================================================================
+# Page 4: sensors and buzzer
+# =====================================================================================
+S.frame(12, 14, 112, 100, 'Motion: accelerometer + gyroscope LSM6DS3TR-C (I2C 0x6A)')
+u5 = S.part('U5', 58, 58, ref=(-8, -15, 'l'), val=(2, 15, 'l'))
+S.connect_all(u5, length=2)
+S.connect_all(S.part('C33', 88, 32))
+S.connect_all(S.part('C34', 102, 32))
+S.note(14, 84, 'SA0 low gives 0x6A; SDx, SCx grounded (no slave sensors); CS high selects I2C.',
+       'Pins 10, 11 are soldered but must stay unconnected.',
+       'INT1, INT2 are push-pull, active high: INT1 can wake the module (pick-up, tap, tilt).',
+       'C33 on VDD, C34 on VDDIO, each beside its pin.')
+
+S.frame(116, 14, 214, 100, 'Compass: magnetometer QMC5883P (I2C 0x2C), on the tail')
+u8 = S.part('U8', 162, 54, ref=(-6, -9, 'l'), val=(2, 9, 'l'))
+S.connect_all(u8, length=2)
+S.connect_all(S.part('C39', 190, 34))
+S.connect_all(S.part('C40', 204, 34))
+S.note(118, 80, 'Pads 3-8 and 12-15 are NC and left open. No interrupt pin on this part.',
+       'C40 (4.7 uF, low ESR, 0603) on C1 is mandatory. C39 decouples VDD.',
+       'No copper under or near it on either face; keep steel and magnets away.',
+       'Draws 22 uA even when suspended. Needs a figure-of-eight calibration.')
+
+S.frame(218, 14, 318, 100, 'Barometer BMP580 (I2C 0x46)')
+u11 = S.part('U11', 264, 56, ref=(-6, -11, 'l'), val=(2, 13, 'l'))
+S.connect_all(u11, length=2)
+S.connect_all(S.part('C43', 296, 32))
+S.connect_all(S.part('C44', 310, 32))
+S.note(220, 84, 'CSB high at power-up or I2C is locked out; SDO low gives 0x46;',
+       'INT unused, grounded (leave it disabled in firmware).',
+       'C43 on VDD, C44 on VDDIO. Vent in the lid must stay open: no wash.')
+
+S.frame(12, 104, 112, 190, 'Temperature and humidity SHT40 (I2C 0x44), tail tip')
+u9 = S.part('U9', 58, 140, ref=(-6, -8, 'l'), val=(6, 8, 'l'))
+S.connect_all(u9, length=2)
+S.connect_all(S.part('C41', 96, 120))
+S.note(14, 170, 'On the tip of the tail, which sticks out of the case. No copper under it',
+       'and no ground pour round it, so it follows the air and not the board.',
+       'It does not stretch the clock: wait 10 ms after asking for a reading.')
+
+S.frame(116, 104, 214, 190, 'Light sensor LTR-303ALS (I2C 0x29), nose')
+u10 = S.part('U10', 162, 140, ref=(-6, -8, 'l'), val=(2, 8, 'l'))
+S.connect_all(u10, length=2)
+S.connect_all(S.part('C42', 200, 120))
+S.note(118, 170, 'On the parts side at the nose: the case needs a hole over it.',
+       'INT not used. Wait 100 ms after power-up before the first command.')
+
+S.frame(218, 104, 318, 190, 'Buzzer (IO4)')
+S.connect_all(S.part('R35', 228, 124))
+S.connect_all(S.part('R37', 244, 124))
+S.connect_all(S.part('BZ1', 258, 126, ref=(0, -6, 'c'), val=(0, 6, 'c')))
+S.connect_all(S.part('D24', 282, 126, rot=90))
+S.connect_all(S.part('Q4', 300, 150, ref=(4, -2, 'l'), val=(4, 2, 'l')), length=2)
+S.connect_all(S.part('R36', 280, 156))
+S.note(220, 170, '3V3 - R35 || R37 - buzzer - Q4 - ground; D24 across the buzzer takes the coil kick.',
+       'Passive buzzer, about 12 ohms: drive IO4 with a 4 kHz square wave.',
+       'R36 (4.7k) holds Q4 off against the 45k pull-up CircuitPython puts on unclaimed pins.',
+       'R35 || R37 (50 ohms) limit the current to 53 mA if the pin is ever left high:',
+       '71 mW in each. Take one off for a quieter buzzer; do not fit less than 100R each.')
 
 if __name__ == '__main__':
     mode = sys.argv[1] if len(sys.argv) > 1 else 'write'
